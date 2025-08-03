@@ -10,36 +10,35 @@ import java.util.Date;
 public class Login {
     //登录编号
     @TableId(value = "login_id", type = IdType.ASSIGN_ID)
-    private String login_id;
+    private String loginId;
 
     //登录用户id
-    private String user_account;
+    private String userAccount;
 
     //登录时间
-    private Date login_time;
+    private Date loginTime;
 
-
-    public String getLogin_id() {
-        return login_id;
+    public String getUserAccount() {
+        return userAccount;
     }
 
-    public void setLogin_id(String login_id) {
-        this.login_id = login_id;
+    public void setUserAccount(String userAccount) {
+        this.userAccount = userAccount;
     }
 
-    public String getUser_account() {
-        return user_account;
+    public Date getLoginTime() {
+        return loginTime;
     }
 
-    public void setUser_account(String user_account) {
-        this.user_account = user_account;
+    public void setLoginTime(Date loginTime) {
+        this.loginTime = loginTime;
     }
 
-    public Date getLogin_time() {
-        return login_time;
+    public String getLoginId() {
+        return loginId;
     }
 
-    public void setLogin_time(Date login_time) {
-        this.login_time = login_time;
+    public void setLoginId(String loginId) {
+        this.loginId = loginId;
     }
 }

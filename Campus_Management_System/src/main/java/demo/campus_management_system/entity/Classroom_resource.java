@@ -4,96 +4,97 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
+import java.util.Date;
+
 @TableName("classroom_resource")
 public class Classroom_resource {
 
     //
     @TableId(value = "res_id", type = IdType.ASSIGN_ID)
-    private String res_id;
+    private String resId;
 
     //日期
-    private String res_date;
+    private Date resDate;
 
     //周次
-    private String res_week;
+    private String resWeek;
 
     //星期
-    private String res_day_of_week;
+    private String resDayOfWeek;
 
     //节次
-    private String res_period;
+    private String resPeriod;
 
     //教室状态
-    private String res_room_status;
+    private String resRoomStatus;
 
     //教室编号
-    private String room_num;
+    private String roomNum;
 
     //信息编号
-    private String apply_info_id;
+    private String applyInfoId;
 
-
-    public String getRes_id() {
-        return res_id;
+    public String getResId() {
+        return resId;
     }
 
-    public void setRes_id(String res_id) {
-        this.res_id = res_id;
+    public void setResId(String resId) {
+        this.resId = resId;
     }
 
-    public String getRes_date() {
-        return res_date;
+    public Date getResDate() {
+        return resDate;
     }
 
-    public void setRes_date(String res_date) {
-        this.res_date = res_date;
+    public void setResDate(Date resDate) {
+        this.resDate = resDate;
     }
 
-    public String getRes_week() {
-        return res_week;
+    public String getResWeek() {
+        return resWeek;
     }
 
-    public void setRes_week(String res_week) {
-        this.res_week = res_week;
+    public void setResWeek(String resWeek) {
+        this.resWeek = resWeek;
     }
 
-    public String getRes_day_of_week() {
-        return res_day_of_week;
+    public String getResDayOfWeek() {
+        return resDayOfWeek;
     }
 
-    public void setRes_day_of_week(String res_day_of_week) {
-        this.res_day_of_week = res_day_of_week;
+    public void setResDayOfWeek(String resDayOfWeek) {
+        this.resDayOfWeek = resDayOfWeek;
     }
 
-    public String getRes_period() {
-        return res_period;
+    public String getResPeriod() {
+        return resPeriod;
     }
 
-    public void setRes_period(String res_period) {
-        this.res_period = res_period;
+    public void setResPeriod(String resPeriod) {
+        this.resPeriod = resPeriod;
     }
 
-    public String getRes_room_status() {
-        return res_room_status;
+    public String getResRoomStatus() {
+        return resRoomStatus;
     }
 
-    public void setRes_room_status(String res_room_status) {
-        this.res_room_status = res_room_status;
+    public void setResRoomStatus(String resRoomStatus) {
+        this.resRoomStatus = resRoomStatus;
     }
 
-    public String getRoom_num() {
-        return room_num;
+    public String getRoomNum() {
+        return roomNum;
     }
 
-    public void setRoom_num(String room_num) {
-        this.room_num = room_num;
+    public void setRoomNum(String roomNum) {
+        this.roomNum = roomNum;
     }
 
-    public String getApply_info_id() {
-        return apply_info_id;
+    public String getApplyInfoId() {
+        return applyInfoId;
     }
 
-    public void setApply_info_id(String apply_info_id) {
-        this.apply_info_id = apply_info_id;
+    public void setApplyInfoId(String applyInfoId) {
+        this.applyInfoId = applyInfoId;
     }
 }
