@@ -10,57 +10,57 @@ public class Classroom {
 
     //教室编号
     @TableId(value = "room_num", type = IdType.ASSIGN_ID)
-    private String room_nm;
+    private String roomNm;
 
     //教室类型
-    private String room_type;
+    private String roomType;
 
     //教室容量
-    private Integer room_capacity;
+    private Integer roomCapacity;
 
     //所在楼栋id
-    private String building_id;
+    private String buildingId;
 
     //所属学院id
-    private String college_id;
+    private String collegeId;
 
-    public String getRoom_nm() {
-        return room_nm;
+    public String getRoomNm() {
+        return roomNm;
     }
 
-    public void setRoom_nm(String room_nm) {
-        this.room_nm = room_nm;
+    public void setRoomNm(String roomNm) {
+        this.roomNm = roomNm;
     }
 
-    public String getRoom_type() {
-        return room_type;
+    public String getRoomType() {
+        return roomType;
     }
 
-    public void setRoom_type(String room_type) {
-        this.room_type = room_type;
+    public void setRoomType(String roomType) {
+        this.roomType = roomType;
     }
 
-    public Integer getRoom_capacity() {
-        return room_capacity;
+    public Integer getRoomCapacity() {
+        return roomCapacity;
     }
 
-    public void setRoom_capacity(Integer room_capacity) {
-        this.room_capacity = room_capacity;
+    public void setRoomCapacity(Integer roomCapacity) {
+        this.roomCapacity = roomCapacity;
     }
 
-    public String getBuilding_id() {
-        return building_id;
+    public String getBuildingId() {
+        return buildingId;
     }
 
-    public void setBuilding_id(String building_id) {
-        this.building_id = building_id;
+    public void setBuildingId(String buildingId) {
+        this.buildingId = buildingId;
     }
 
-    public String getCollege_id() {
-        return college_id;
+    public String getCollegeId() {
+        return collegeId;
     }
 
-    public void setCollege_id(String college_id) {
-        this.college_id = college_id;
+    public void setCollegeId(String collegeId) {
+        this.collegeId = collegeId;
     }
 }

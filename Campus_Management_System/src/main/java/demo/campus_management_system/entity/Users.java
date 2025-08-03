@@ -9,59 +9,58 @@ import com.baomidou.mybatisplus.annotation.TableName;
 public class Users {
 
     //用户账号
-    @TableId(value = "user_accpunt", type = IdType.ASSIGN_ID)
-    private String user_account;
+    @TableId(value = "user_account", type = IdType.ASSIGN_ID)
+    private String userAccount;
 
     //密码
-    private String user_password;
+    private String userPassword;
 
     //用户姓名
-    private String user_name;
+    private String userName;
 
     //联系电话
-    private String user_phone;
+    private String userPhone;
 
     //所属学院
-    private String college_id;
+    private String collegeId;
 
-
-    public String getUser_account() {
-        return user_account;
+    public String getUserAccount() {
+        return userAccount;
     }
 
-    public void setUser_account(String user_account) {
-        this.user_account = user_account;
+    public void setUserAccount(String userAccount) {
+        this.userAccount = userAccount;
     }
 
-    public String getUser_password() {
-        return user_password;
+    public String getUserPassword() {
+        return userPassword;
     }
 
-    public void setUser_password(String user_password) {
-        this.user_password = user_password;
+    public void setUserPassword(String userPassword) {
+        this.userPassword = userPassword;
     }
 
-    public String getUser_name() {
-        return user_name;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setUser_name(String user_name) {
-        this.user_name = user_name;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
-    public String getUser_phone() {
-        return user_phone;
+    public String getUserPhone() {
+        return userPhone;
     }
 
-    public void setUser_phone(String user_phone) {
-        this.user_phone = user_phone;
+    public void setUserPhone(String userPhone) {
+        this.userPhone = userPhone;
     }
 
-    public String getCollege_id() {
-        return college_id;
+    public String getCollegeId() {
+        return collegeId;
     }
 
-    public void setCollege_id(String college_id) {
-        this.college_id = college_id;
+    public void setCollegeId(String collegeId) {
+        this.collegeId = collegeId;
     }
 }

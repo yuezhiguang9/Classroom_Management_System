@@ -10,58 +10,58 @@ public class Teach_Secretary {
 
     //账号
     @TableId(value = "sec_account", type = IdType.ASSIGN_ID)
-    private String sec_account;
+    private String secAccount;
 
     //密码
-    private String sec_password;
+    private String secPassword;
 
     //姓名
-    private String sec_name;
+    private String secName;
 
     //办公室电话
-    private String office_phone;
+    private String officePhone;
 
 
     //所属学院
-    private String college_id;
+    private String collegeId;
 
-    public String getSec_account() {
-        return sec_account;
+    public String getSecAccount() {
+        return secAccount;
     }
 
-    public void setSec_account(String sec_account) {
-        this.sec_account = sec_account;
+    public void setSecAccount(String secAccount) {
+        this.secAccount = secAccount;
     }
 
-    public String getSec_password() {
-        return sec_password;
+    public String getSecPassword() {
+        return secPassword;
     }
 
-    public void setSec_password(String sec_password) {
-        this.sec_password = sec_password;
+    public void setSecPassword(String secPassword) {
+        this.secPassword = secPassword;
     }
 
-    public String getSec_name() {
-        return sec_name;
+    public String getSecName() {
+        return secName;
     }
 
-    public void setSec_name(String sec_name) {
-        this.sec_name = sec_name;
+    public void setSecName(String secName) {
+        this.secName = secName;
     }
 
-    public String getOffice_phone() {
-        return office_phone;
+    public String getOfficePhone() {
+        return officePhone;
     }
 
-    public void setOffice_phone(String office_phone) {
-        this.office_phone = office_phone;
+    public void setOfficePhone(String officePhone) {
+        this.officePhone = officePhone;
     }
 
-    public String getCollege_id() {
-        return college_id;
+    public String getCollegeId() {
+        return collegeId;
     }
 
-    public void setCollege_id(String college_id) {
-        this.college_id = college_id;
+    public void setCollegeId(String collegeId) {
+        this.collegeId = collegeId;
     }
 }

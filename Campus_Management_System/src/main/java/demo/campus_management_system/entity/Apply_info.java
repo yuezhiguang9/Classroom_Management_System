@@ -5,107 +5,108 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
+import java.util.Date;
+
 @TableName("apply_id")
 public class Apply_info {
 
     //申请编号
     @TableId(value = "apply_id", type = IdType.ASSIGN_ID)
-    private String apply_id;
+    private String applyId;
 
     //预约人数
-    private String apply_person_count;
+    private Integer applyPersonCount;
 
     //预约目的
-    private String apply_purpose;
+    private String applyPurpose;
 
     //预约时间
-    private String apply_book_time;
+    private Date applyBookTime;
 
     //审核状态
-    private String apply_status;
+    private String applyStatus;
 
     //驳回原因
-    private String apply_reject_reason;
+    private String applyRejectReason;
 
     //申请人id
-    private String user_account;
+    private String userAccount;
 
     //审核人id
-    private String sec_account;
+    private String secAccount;
 
     //是否取消标志
-    private Integer user_cancel;
+    private Integer userCancel;
 
-
-    public String getApply_id() {
-        return apply_id;
+    public String getApplyId() {
+        return applyId;
     }
 
-    public void setApply_id(String apply_id) {
-        this.apply_id = apply_id;
+    public void setApplyId(String applyId) {
+        this.applyId = applyId;
     }
 
-    public String getApply_person_count() {
-        return apply_person_count;
+    public Integer getApplyPersonCount() {
+        return applyPersonCount;
     }
 
-    public void setApply_person_count(String apply_person_count) {
-        this.apply_person_count = apply_person_count;
+    public void setApplyPersonCount(Integer applyPersonCount) {
+        this.applyPersonCount = applyPersonCount;
     }
 
-    public String getApply_purpose() {
-        return apply_purpose;
+    public String getApplyPurpose() {
+        return applyPurpose;
     }
 
-    public void setApply_purpose(String apply_purpose) {
-        this.apply_purpose = apply_purpose;
+    public void setApplyPurpose(String applyPurpose) {
+        this.applyPurpose = applyPurpose;
     }
 
-    public String getApply_book_time() {
-        return apply_book_time;
+    public Date getApplyBookTime() {
+        return applyBookTime;
     }
 
-    public void setApply_book_time(String apply_book_time) {
-        this.apply_book_time = apply_book_time;
+    public void setApplyBookTime(Date applyBookTime) {
+        this.applyBookTime = applyBookTime;
     }
 
-    public String getApply_status() {
-        return apply_status;
+    public String getApplyStatus() {
+        return applyStatus;
     }
 
-    public void setApply_status(String apply_status) {
-        this.apply_status = apply_status;
+    public void setApplyStatus(String applyStatus) {
+        this.applyStatus = applyStatus;
     }
 
-    public String getApply_reject_reason() {
-        return apply_reject_reason;
+    public String getApplyRejectReason() {
+        return applyRejectReason;
     }
 
-    public void setApply_reject_reason(String apply_reject_reason) {
-        this.apply_reject_reason = apply_reject_reason;
+    public void setApplyRejectReason(String applyRejectReason) {
+        this.applyRejectReason = applyRejectReason;
     }
 
-    public String getUser_account() {
-        return user_account;
+    public String getUserAccount() {
+        return userAccount;
     }
 
-    public void setUser_account(String user_account) {
-        this.user_account = user_account;
+    public void setUserAccount(String userAccount) {
+        this.userAccount = userAccount;
     }
 
-    public String getSec_account() {
-        return sec_account;
+    public String getSecAccount() {
+        return secAccount;
     }
 
-    public void setSec_account(String sec_account) {
-        this.sec_account = sec_account;
+    public void setSecAccount(String secAccount) {
+        this.secAccount = secAccount;
     }
 
-    public Integer getUser_cancel() {
-        return user_cancel;
+    public Integer getUserCancel() {
+        return userCancel;
     }
 
-    public void setUser_cancel(Integer user_cancel) {
-        this.user_cancel = user_cancel;
+    public void setUserCancel(Integer userCancel) {
+        this.userCancel = userCancel;
     }
 }

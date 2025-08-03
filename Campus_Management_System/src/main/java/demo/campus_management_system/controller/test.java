@@ -1,8 +1,7 @@
 package demo.campus_management_system.controller;
 
-import demo.campus_management_system.dao.dao_interface.UsersMapper;
 import demo.campus_management_system.entity.Users;
-import demo.campus_management_system.service.srevice_interface.UserService;
+import demo.campus_management_system.service.service_interface.UserService;
 import demo.campus_management_system.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

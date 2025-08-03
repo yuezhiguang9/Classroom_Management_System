@@ -9,46 +9,46 @@ import com.baomidou.mybatisplus.annotation.TableName;
 public class Classroom_manager {
 
     @TableId(value = "mgr_account", type = IdType.ASSIGN_ID)
-    private String mgr_account;
+    private String mgrAccount;
 
     //密码
-    private String mgr_password;
+    private String mgrPassword;
 
     //联系电话
-    private String mgr_phone;
+    private String mgrPhone;
 
     //所在楼栋
-    private String building_id;
+    private String buildingId;
 
-    public String getMgr_password() {
-        return mgr_password;
+    public String getMgrAccount() {
+        return mgrAccount;
     }
 
-    public void setMgr_password(String mgr_password) {
-        this.mgr_password = mgr_password;
+    public void setMgrAccount(String mgrAccount) {
+        this.mgrAccount = mgrAccount;
     }
 
-    public String getMgr_phone() {
-        return mgr_phone;
+    public String getMgrPassword() {
+        return mgrPassword;
     }
 
-    public void setMgr_phone(String mgr_phone) {
-        this.mgr_phone = mgr_phone;
+    public void setMgrPassword(String mgrPassword) {
+        this.mgrPassword = mgrPassword;
     }
 
-    public String getBuilding_id() {
-        return building_id;
+    public String getMgrPhone() {
+        return mgrPhone;
     }
 
-    public void setBuilding_id(String building_id) {
-        this.building_id = building_id;
+    public void setMgrPhone(String mgrPhone) {
+        this.mgrPhone = mgrPhone;
     }
 
-    public String getMgr_account() {
-        return mgr_account;
+    public String getBuildingId() {
+        return buildingId;
     }
 
-    public void setMgr_account(String mgr_account) {
-        this.mgr_account = mgr_account;
+    public void setBuildingId(String buildingId) {
+        this.buildingId = buildingId;
     }
 }

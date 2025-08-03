@@ -11,24 +11,24 @@ public class College {
 
     //学院编号
     @TableId(value = "college_id", type = IdType.ASSIGN_ID)
-    private String college_id;
+    private String collegeId;
 
     //学院名称
-    private String college_name;
+    private String collegeName;
 
-    public String getCollege_id() {
-        return college_id;
+    public String getCollegeId() {
+        return collegeId;
     }
 
-    public void setCollege_id(String college_id) {
-        this.college_id = college_id;
+    public void setCollegeId(String collegeId) {
+        this.collegeId = collegeId;
     }
 
-    public String getCollege_name() {
-        return college_name;
+    public String getCollegeName() {
+        return collegeName;
     }
 
-    public void setCollege_name(String college_name) {
-        this.college_name = college_name;
+    public void setCollegeName(String collegeName) {
+        this.collegeName = collegeName;
     }
 }
