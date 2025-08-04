@@ -5,13 +5,16 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import demo.campus_management_system.dao.dao_interface.SuperAdminMapper;
 import demo.campus_management_system.entity.DTO.ListLogsDTO;
+import demo.campus_management_system.entity.DTO.UpdateUsersDTO;
 import demo.campus_management_system.entity.Super_admin;
 import demo.campus_management_system.entity.VO.ListLogsVO;
 import demo.campus_management_system.service.service_interface.SuperAdmin;
 import demo.campus_management_system.util.DataUtils;
+import demo.campus_management_system.util.JwtUtil;
 import demo.campus_management_system.util.ResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,6 +26,44 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
     @Autowired
     SuperAdminMapper superAdminMapper;
 
+    //编辑用户
+    public ResultDTO<Boolean> updateUsers(String token, UpdateUsersDTO updateUsersDTO) {
+
+        //从token中获取账号密码
+        String account = JwtUtil.getUserAccountToken(token);
+        String password = JwtUtil.getUserPasswordToken(token);
+
+        //超级管理员才能编辑用户，所以先判断是不是超级管理员
+        Boolean isSuperAdmin = superAdminMapper.selectSuperAdmin(account, password);
+        if (isSuperAdmin == null || !isSuperAdmin) {
+            return ResultDTO.fail(401, "没有权限");
+        } else {
+            switch (updateUsersDTO.getUser_type()) {
+                case "user":
+                    if (superAdminMapper.editUsers(updateUsersDTO)) {
+                        return ResultDTO.success(true);
+                    } else {
+                        return ResultDTO.fail(404, "修改失败");
+                    }
+                case "teach_sec":
+                    if (superAdminMapper.editTeach(updateUsersDTO)) {
+                        return ResultDTO.success(true);
+                    } else {
+                        return ResultDTO.fail(404, "修改失败");
+                    }
+                case "class_mgr":
+                    if (superAdminMapper.editClassMgr(updateUsersDTO)) {
+                        return ResultDTO.success(true);
+                    } else {
+                        return ResultDTO.fail(404, "修改失败");
+                    }
+                default:
+                    return ResultDTO.fail(404, "没有选择用户类型");
+            }
+        }
+    }
+
+    //日志列表
     public ResultDTO<List<ListLogsDTO>> ListLogs(
             String apply_status,
             String college_id,
@@ -32,8 +73,6 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
             String date_end,
             Integer page,
             Integer size) {
-
-
         //定义返回包装类
         ResultDTO<List<ListLogsDTO>> resultDTO = new ResultDTO<>();
 

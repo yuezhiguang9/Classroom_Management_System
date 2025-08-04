@@ -4,6 +4,7 @@ package demo.campus_management_system.dao.dao_interface;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import demo.campus_management_system.entity.DTO.UpdateUsersDTO;
 import demo.campus_management_system.entity.Super_admin;
 import demo.campus_management_system.entity.VO.ListLogsVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -32,5 +33,16 @@ public interface SuperAdminMapper extends BaseMapper<Super_admin> {
             @Param("date_start") String date_start,
             @Param("date_end") String date_end
     );
+
+
+    //测试测试RequestBody
+    Boolean selectSuperAdmin(String account, String password);
+
+    Boolean editUsers(UpdateUsersDTO updateUsersDTO);
+
+    Boolean editTeach(UpdateUsersDTO updateUsersDTO);
+
+    Boolean editClassMgr(UpdateUsersDTO updateUsersDTO);
+
 
 }
