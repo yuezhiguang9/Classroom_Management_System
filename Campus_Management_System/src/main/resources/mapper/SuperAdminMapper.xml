@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="demo.campus_management_system.dao.dao_interface.SuperAdminMapper">
+
+    <!-- ============ 日志相关 ============ -->
+
+    <!-- 全校今日待审核数 -->
+    <select id="selectTodayPending" resultType="Integer">
+        SELECT COUNT(*)
+        FROM apply_info
+        WHERE apply_status = '未审核'
+          AND DATE(apply_book_time) = CURDATE()
+          AND user_cancel = 0
+    </select>
+
+    <!-- 全校本周通过数 -->
+    <select id="selectWeekApproved" resultType="Integer">
+        SELECT COUNT(*)
+        FROM apply_info
+        WHERE apply_status = '已批准'
+          AND apply_book_time BETWEEN #{startTime} AND #{endTime}
+          AND user_cancel = 0
+    </select>
+
+    <!-- 全校本周驳回数 -->
+    <select id="selectWeekRejected" resultType="Integer">
+        SELECT COUNT(*)
+        FROM apply_info
+        WHERE apply_status = '已拒绝'
+          AND apply_book_time BETWEEN #{startTime} AND #{endTime}
+          AND user_cancel = 0
+    </select>
+
+    <!-- 需要分页的信息 -->
+    <select id="selectRecordsByPage" resultType="demo.campus_management_system.entity.VO.ListLogsVO">
+        SELECT 
+            u.user_name,
+            u.user_phone as phone,
+            ai.apply_book_time as book_time,
+            COALESCE(b.building_name, '未分配') as building_name,
+            COALESCE(c.room_num, '未分配') as room_num,
+            COALESCE(cr.res_date, '未分配') as date,
+            COALESCE(cr.res_week, '未分配') as week,
+            COALESCE(cr.res_day_of_week, '未分配') as day_of_week,
+            COALESCE(cr.res_period, '未分配') as period,
+            ai.apply_purpose as purpose,
+            ai.apply_person_count as person_count,
+            ai.apply_status
+        FROM apply_info ai
+        LEFT JOIN users u ON ai.user_account = u.user_account
+        LEFT JOIN classroom_resource cr ON ai.apply_id = cr.apply_info_id
+        LEFT JOIN classroom c ON cr.room_num = c.room_num
+        LEFT JOIN building b ON c.building_id = b.building_id
+        LEFT JOIN college col ON u.college_id = col.college_id
+        WHERE ai.user_cancel = 0
+        <if test="apply_status != null and apply_status != ''">
+            AND ai.apply_status = #{apply_status}
+        </if>
+        <if test="college_id != null and college_id != ''">
+            AND u.college_id = #{college_id}
+        </if>
+        <if test="building_id != null and building_id != ''">
+            AND c.building_id = #{building_id}
+        </if>
+        <if test="user_name != null and user_name != ''">
+            AND u.user_name LIKE CONCAT('%', #{user_name}, '%')
+        </if>
+        <if test="date_start != null and date_start != ''">
+            AND cr.res_date &gt;= #{date_start}
+        </if>
+        <if test="date_end != null and date_end != ''">
+            AND cr.res_date &lt;= #{date_end}
+        </if>
+        ORDER BY ai.apply_book_time DESC
+    </select>
+
+    <!-- 根据申请ID查询日志详情 -->
+    <select id="selectLogDetailByApplyId" resultType="demo.campus_management_system.entity.VO.ListLogsVO">
+        SELECT 
+            u.user_name,
+            u.user_phone as phone,
+            ai.apply_book_time as book_time,
+            b.building_name,
+            c.room_num,
+            cr.res_date as date,
+            cr.res_week as week,
+            cr.res_day_of_week as day_of_week,
+            cr.res_period as period,
+            ai.apply_purpose as purpose,
+            ai.apply_person_count as person_count,
+            ai.apply_status
+        FROM apply_info ai
+        LEFT JOIN users u ON ai.user_account = u.user_account
+        LEFT JOIN classroom_resource cr ON ai.apply_id = cr.apply_info_id
+        LEFT JOIN classroom c ON cr.room_num = c.room_num
+        LEFT JOIN building b ON c.building_id = b.building_id
+        WHERE ai.apply_id = #{applyId}
+        LIMIT 1
+    </select>
+
+    <!-- ============ 用户管理相关 ============ -->
+
+    <!-- 查询用户列表(分页) -->
+    <select id="selectUserList" resultType="demo.campus_management_system.entity.VO.UserListVO">
+        SELECT * FROM (
+            SELECT 
+                user_name as name,
+                'user' as user_type,
+                col.college_name as college,
+                user_account,
+                (SELECT login_time FROM login WHERE user_account = u.user_account ORDER BY login_time DESC LIMIT 1) as last_login
+            FROM users u
+            LEFT JOIN college col ON u.college_id = col.college_id
+            <where>
+                <if test="userType != null and userType != '' and userType != 'all'">
+                    AND 'user' = #{userType}
+                </if>
+                <if test="collegeId != null and collegeId != ''">
+                    AND u.college_id = #{collegeId}
+                </if>
+                <if test="userName != null and userName != ''">
+                    AND u.user_name LIKE CONCAT('%', #{userName}, '%')
+                </if>
+                <if test="userId != null and userId != ''">
+                    AND u.user_account LIKE CONCAT('%', #{userId}, '%')
+                </if>
+            </where>
+            
+            UNION ALL
+            
+            SELECT 
+                sec_name as name,
+                'teach_sec' as user_type,
+                col.college_name as college,
+                sec_account as user_account,
+                NULL as last_login
+            FROM teach_secretary ts
+            LEFT JOIN college col ON ts.college_id = col.college_id
+            <where>
+                <if test="userType != null and userType != '' and userType != 'all'">
+                    AND 'teach_sec' = #{userType}
+                </if>
+                <if test="collegeId != null and collegeId != ''">
+                    AND ts.college_id = #{collegeId}
+                </if>
+                <if test="userName != null and userName != ''">
+                    AND ts.sec_name LIKE CONCAT('%', #{userName}, '%')
+                </if>
+                <if test="userId != null and userId != ''">
+                    AND ts.sec_account LIKE CONCAT('%', #{userId}, '%')
+                </if>
+            </where>
+            
+            UNION ALL
+            
+            SELECT 
+                '教室管理员' as name,
+                'class_mgr' as user_type,
+                b.building_name as college,
+                mgr_account as user_account,
+                NULL as last_login
+            FROM classroom_manager cm
+            LEFT JOIN building b ON cm.building_id = b.building_id
+            <where>
+                <if test="userType != null and userType != '' and userType != 'all'">
+                    AND 'class_mgr' = #{userType}
+                </if>
+                <if test="userId != null and userId != ''">
+                    AND cm.mgr_account LIKE CONCAT('%', #{userId}, '%')
+                </if>
+            </where>
+            
+            UNION ALL
+            
+            SELECT 
+                '超级管理员' as name,
+                'super_admin' as user_type,
+                '系统管理' as college,
+                account as user_account,
+                NULL as last_login
+            FROM super_admin sa
+            <where>
+                <if test="userType != null and userType != '' and userType != 'all'">
+                    AND 'super_admin' = #{userType}
+                </if>
+                <if test="userId != null and userId != ''">
+                    AND sa.account LIKE CONCAT('%', #{userId}, '%')
+                </if>
+            </where>
+        ) combined_users
+        ORDER BY user_type, user_account
+    </select>
+
+    <!-- 统计总用户数 -->
+    <select id="countTotalUsers" resultType="Integer">
+        SELECT (
+            (SELECT COUNT(*) FROM users) +
+            (SELECT COUNT(*) FROM teach_secretary) +
+            (SELECT COUNT(*) FROM classroom_manager) +
+            (SELECT COUNT(*) FROM super_admin)
+        ) as total_users
+    </select>
+
+    <!-- 统计活跃用户数(近30天有登录记录) -->
+    <select id="countActiveUsers" resultType="Integer">
+        SELECT COUNT(DISTINCT user_account)
+        FROM login
+        WHERE login_time &gt;= DATE_SUB(NOW(), INTERVAL 30 DAY)
+    </select>
+
+    <!-- 更新普通用户信息 -->
+    <update id="updateUserInfo">
+        UPDATE users
+        SET user_name = #{name},
+            user_phone = #{phone}
+            <if test="password != null and password != ''">
+                ,user_password = #{password}
+            </if>
+            <if test="collegeId != null and collegeId != ''">
+                ,college_id = #{collegeId}
+            </if>
+        WHERE user_account = #{account}
+    </update>
+
+    <!-- 更新教学秘书信息 -->
+    <update id="updateTeachSecInfo">
+        UPDATE teach_secretary
+        SET sec_name = #{name},
+            office_phone = #{phone}
+            <if test="password != null and password != ''">
+                ,sec_password = #{password}
+            </if>
+            <if test="collegeId != null and collegeId != ''">
+                ,college_id = #{collegeId}
+            </if>
+        WHERE sec_account = #{account}
+    </update>
+
+    <!-- 更新教室管理员信息 -->
+    <update id="updateClassroomManagerInfo">
+        UPDATE classroom_manager
+        SET mgr_phone = #{phone}
+            <if test="password != null and password != ''">
+                ,mgr_password = #{password}
+            </if>
+            <if test="buildingId != null and buildingId != ''">
+                ,building_id = #{buildingId}
+            </if>
+        WHERE mgr_account = #{account}
+    </update>
+
+    <!-- 更新超级管理员信息 -->
+    <update id="updateSuperAdminInfo">
+        UPDATE super_admin
+        <set>
+            <if test="password != null and password != ''">
+                password = #{password}
+            </if>
+        </set>
+        WHERE account = #{account}
+    </update>
+
+    <!-- 删除普通用户 -->
+    <delete id="deleteUser">
+        DELETE FROM users WHERE user_account = #{account}
+    </delete>
+    
+    <!-- 删除教学秘书 -->
+    <delete id="deleteTeachSec">
+        DELETE FROM teach_secretary WHERE sec_account = #{account}
+    </delete>
+    
+    <!-- 删除教室管理员 -->
+    <delete id="deleteClassroomManager">
+        DELETE FROM classroom_manager WHERE mgr_account = #{account}
+    </delete>
+    
+    <!-- 删除超级管理员 -->
+    <delete id="deleteSuperAdmin">
+        DELETE FROM super_admin WHERE account = #{account}
+    </delete>
+    
+    <!-- 删除用户相关的申请记录 -->
+    <delete id="deleteUserApplies">
+        DELETE FROM apply_info WHERE user_account = #{account}
+    </delete>
+    
+    <!-- 删除用户相关的资源记录 -->
+    <delete id="deleteUserResources">
+        DELETE FROM classroom_resource 
+        WHERE apply_info_id IN (
+            SELECT apply_id FROM apply_info WHERE user_account = #{account}
+        )
+    </delete>
+
+    <!-- 插入普通用户 -->
+    <insert id="insertUser">
+        INSERT INTO users (user_account, user_name, user_password, user_phone, college_id)
+        VALUES (#{account}, #{name}, #{password}, #{phone}, #{collegeId})
+    </insert>
+
+    <!-- 插入教学秘书 -->
+    <insert id="insertTeachSec">
+        INSERT INTO teach_secretary (sec_account, sec_name, sec_password, office_phone, college_id)
+        VALUES (#{account}, #{name}, #{password}, #{phone}, #{collegeId})
+    </insert>
+
+    <!-- 插入教室管理员 -->
+    <insert id="insertClassroomManager">
+        INSERT INTO classroom_manager (mgr_account, mgr_password, mgr_phone, building_id)
+        VALUES (#{account}, #{password}, #{phone}, #{buildingId})
+    </insert>
+
+    <!-- 插入超级管理员 -->
+    <insert id="insertSuperAdmin">
+        INSERT INTO super_admin (account, password)
+        VALUES (#{account}, #{password})
+    </insert>
+
+    <!-- ============ 数据统计相关 ============ -->
+
+    <!-- 统计总申请数 -->
+    <select id="countTotalApplies" resultType="Integer">
+        SELECT COUNT(*)
+        FROM apply_info ai
+        LEFT JOIN classroom_resource cr ON ai.apply_id = cr.apply_info_id
+        WHERE ai.user_cancel = 0
+        <choose>
+            <when test="timeRange == 'week'">
+                AND YEARWEEK(ai.apply_book_time, 1) = YEARWEEK(NOW(), 1)
+            </when>
+            <when test="timeRange == 'month'">
+                AND YEAR(ai.apply_book_time) = YEAR(NOW())
+                AND MONTH(ai.apply_book_time) = MONTH(NOW())
+            </when>
+            <when test="timeRange == 'semester'">
+                AND ai.apply_book_time &gt;= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+            </when>
+            <otherwise>
+                <if test="dateStart != null and dateStart != ''">
+                    AND cr.res_date &gt;= #{dateStart}
+                </if>
+                <if test="dateEnd != null and dateEnd != ''">
+                    AND cr.res_date &lt;= #{dateEnd}
+                </if>
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- 计算教室使用率 -->
+    <select id="calculateUsageRate" resultType="String">
+        SELECT CONCAT(
+            ROUND(
+                (SELECT COUNT(*) FROM classroom_resource WHERE res_room_status = '已预订') * 100.0 /
+                (SELECT COUNT(*) FROM classroom_resource), 2
+            ), '%'
+        ) as usage_rate
+    </select>
+
+    <!-- 计算审批通过率 -->
+    <select id="calculateApprovalRate" resultType="String">
+        SELECT CONCAT(
+            ROUND(
+                (SELECT COUNT(*) FROM apply_info WHERE apply_status = '已批准' AND user_cancel = 0) * 100.0 /
+                (SELECT COUNT(*) FROM apply_info WHERE user_cancel = 0), 2
+            ), '%'
+        ) as approval_rate
+    </select>
+
+    <!-- 获取使用率详情 -->
+    <select id="getUsageDetails" resultType="map">
+        SELECT 
+            c.room_type,
+            COUNT(DISTINCT c.room_num) as room_type_count,
+            COUNT(cr.res_id) as usage_count,
+            CONCAT(ROUND(COUNT(cr.res_id) * 100.0 / COUNT(DISTINCT c.room_num), 2), '%') as usage_rate
+        FROM classroom c
+        LEFT JOIN classroom_resource cr ON c.room_num = cr.room_num
+            AND cr.res_room_status = '已预订'
+        <where>
+            <if test="collegeId != null and collegeId != ''">
+                AND c.college_id = #{collegeId}
+            </if>
+            <if test="buildingId != null and buildingId != ''">
+                AND c.building_id = #{buildingId}
+            </if>
+            <if test="roomType != null and roomType != ''">
+                AND c.room_type = #{roomType}
+            </if>
+        </where>
+        GROUP BY c.room_type
+        ORDER BY usage_count DESC
+    </select>
+
+    <!-- 获取高峰时段分析 -->
+    <select id="getPeakTimeAnalysis" resultType="map">
+        SELECT 
+            cr.res_period as period,
+            COUNT(*) as usage_count
+        FROM classroom_resource cr
+        WHERE cr.res_room_status = '已预订'
+        <choose>
+            <when test="timeRange == 'week'">
+                AND YEARWEEK(cr.res_date, 1) = YEARWEEK(NOW(), 1)
+            </when>
+            <when test="timeRange == 'month'">
+                AND YEAR(cr.res_date) = YEAR(NOW())
+                AND MONTH(cr.res_date) = MONTH(NOW())
+            </when>
+            <when test="timeRange == 'semester'">
+                AND cr.res_date &gt;= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+            </when>
+        </choose>
+        GROUP BY cr.res_period
+        ORDER BY usage_count DESC
+    </select>
+
+    <!-- 获取用户活跃度统计 -->
+    <select id="getUserActivityStats" resultType="map">
+        SELECT 
+            DATE(l.login_time) as login_date,
+            COUNT(DISTINCT l.user_account) as active_users
+        FROM login l
+        WHERE l.login_time &gt;= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        GROUP BY DATE(l.login_time)
+        ORDER BY login_date DESC
+    </select>
+
+    <!-- 获取审批详情 -->
+    <select id="getApprovalDetails" resultType="map">
+        SELECT 
+            ai.apply_id,
+            u.user_name,
+            CONCAT(b.building_name, '-', cr.room_num) as classroom,
+            ai.apply_book_time as book_time,
+            ai.apply_status
+        FROM apply_info ai
+        LEFT JOIN users u ON ai.user_account = u.user_account
+        LEFT JOIN classroom_resource cr ON ai.apply_id = cr.apply_info_id
+        LEFT JOIN classroom c ON cr.room_num = c.room_num
+        LEFT JOIN building b ON c.building_id = b.building_id
+        WHERE ai.user_cancel = 0
+        <choose>
+            <when test="timeRange == 'week'">
+                AND YEARWEEK(ai.apply_book_time, 1) = YEARWEEK(NOW(), 1)
+            </when>
+            <when test="timeRange == 'month'">
+                AND YEAR(ai.apply_book_time) = YEAR(NOW())
+                AND MONTH(ai.apply_book_time) = MONTH(NOW())
+            </when>
+            <when test="timeRange == 'semester'">
+                AND ai.apply_book_time &gt;= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+            </when>
+        </choose>
+        ORDER BY ai.apply_book_time DESC
+        LIMIT 100
+    </select>
+
+</mapper>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="demo.campus_management_system.dao.dao_interface.UserMapper">
+
+    <!-- 查询可用教室(分页) -->
+    <select id="selectAvailableClassrooms" resultType="demo.campus_management_system.entity.VO.ClassroomVO">
+        SELECT 
+            CONCAT(b.building_name, '-', c.room_num) as classroom,
+            c.room_capacity as capacity,
+            c.room_type,
+            CASE 
+                WHEN cr.res_id IS NULL OR cr.res_room_status = '空闲' 
+                THEN '预约此教室' 
+                ELSE '不可预约' 
+            END as operation
+        FROM classroom c
+        LEFT JOIN building b ON c.building_id = b.building_id
+        LEFT JOIN classroom_resource cr ON c.room_num = cr.room_num 
+            AND cr.res_date = #{date} 
+            AND cr.res_period = #{period}
+        WHERE 1=1
+        <if test="buildingId != null and buildingId != ''">
+            AND c.building_id = #{buildingId}
+        </if>
+        <if test="capacity != null">
+            AND c.room_capacity &gt;= #{capacity}
+        </if>
+        <if test="roomType != null and roomType != ''">
+            AND c.room_type = #{roomType}
+        </if>
+        <if test="roomStatus != null and roomStatus != ''">
+            AND (cr.res_room_status = #{roomStatus} OR cr.res_room_status IS NULL)
+        </if>
+        ORDER BY c.room_num
+    </select>
+
+    <!-- 插入预约申请 -->
+    <insert id="insertClassroomApply">
+        INSERT INTO apply_info (
+            apply_id, apply_person_count, apply_purpose, apply_book_time, 
+            apply_status, user_account, sec_account, user_cancel
+        ) VALUES (
+            #{applyId}, #{personCount}, #{purpose}, NOW(), 
+            '未审核', #{userAccount}, #{secAccount}, 0
+        )
+    </insert>
+
+    <!-- 插入教室资源记录 -->
+    <insert id="insertClassroomResource">
+        INSERT INTO classroom_resource (
+            res_id, res_date, res_week, res_day_of_week, res_period, 
+            res_room_status, room_num, apply_info_id
+        ) VALUES (
+            #{resId}, #{date}, #{week}, #{dayOfWeek}, #{period}, 
+            '已预订', #{roomNum}, #{applyId}
+        )
+    </insert>
+
+    <!-- 查询用户预约记录 -->
+    <select id="selectUserReservations" resultType="demo.campus_management_system.entity.VO.ReservationVO">
+        SELECT 
+            ai.apply_id,
+            CONCAT(b.building_name, '-', cr.room_num) as classroom,
+            cr.res_date as date,
+            CAST(SUBSTRING(cr.res_week, 2, LENGTH(cr.res_week)-2) AS UNSIGNED) as week,
+            cr.res_period as period,
+            ai.apply_purpose as purpose,
+            ai.apply_book_time as book_time,
+            ai.apply_status,
+            CASE 
+                WHEN NOW() &lt; CONCAT(cr.res_date, ' ', 
+                    CASE cr.res_period 
+                        WHEN '1节' THEN '08:30:00'
+                        WHEN '2节' THEN '09:20:00'
+                        WHEN '3节' THEN '10:30:00'
+                        WHEN '4节' THEN '11:20:00'
+                        WHEN '5节' THEN '14:00:00'
+                        WHEN '6节' THEN '14:50:00'
+                        WHEN '7节' THEN '16:00:00'
+                        WHEN '8节' THEN '16:50:00'
+                        WHEN '9节' THEN '19:00:00'
+                        WHEN '10节' THEN '19:50:00'
+                        ELSE '20:40:00'
+                    END
+                ) 
+                THEN TRUE 
+                ELSE FALSE 
+            END as can_cancel
+        FROM apply_info ai
+        LEFT JOIN classroom_resource cr ON ai.apply_id = cr.apply_info_id
+        LEFT JOIN classroom c ON cr.room_num = c.room_num
+        LEFT JOIN building b ON c.building_id = b.building_id
+        WHERE ai.user_account = #{userAccount} 
+            AND ai.user_cancel = 0
+        ORDER BY ai.apply_book_time DESC
+    </select>
+
+    <!-- 统计用户本周预约数 -->
+    <select id="countWeekReservations" resultType="Integer">
+        SELECT COUNT(*)
+        FROM apply_info 
+        WHERE user_account = #{userAccount}
+            AND user_cancel = 0
+            AND YEARWEEK(apply_book_time, 1) = YEARWEEK(NOW(), 1)
+    </select>
+
+    <!-- 统计用户待审核预约数 -->
+    <select id="countPendingReservations" resultType="Integer">
+        SELECT COUNT(*)
+        FROM apply_info 
+        WHERE user_account = #{userAccount}
+            AND user_cancel = 0
+            AND apply_status = '未审核'
+    </select>
+
+    <!-- 取消预约(更新user_cancel字段) -->
+    <update id="cancelReservation">
+        UPDATE apply_info 
+        SET user_cancel = 1 
+        WHERE apply_id = #{applyId}
+    </update>
+
+    <!-- 检查预约是否可取消 -->
+    <select id="canCancelReservation" resultType="boolean">
+        SELECT COUNT(*) &gt; 0
+        FROM apply_info ai
+        LEFT JOIN classroom_resource cr ON ai.apply_id = cr.apply_info_id
+        WHERE ai.apply_id = #{applyId}
+            AND ai.user_cancel = 0
+            AND NOW() &lt; CONCAT(cr.res_date, ' ', 
+                CASE cr.res_period 
+                    WHEN '1节' THEN '08:30:00'
+                    WHEN '2节' THEN '09:20:00'
+                    WHEN '3节' THEN '10:30:00'
+                    WHEN '4节' THEN '11:20:00'
+                    WHEN '5节' THEN '14:00:00'
+                    WHEN '6节' THEN '14:50:00'
+                    WHEN '7节' THEN '16:00:00'
+                    WHEN '8节' THEN '16:50:00'
+                    WHEN '9节' THEN '19:00:00'
+                    WHEN '10节' THEN '19:50:00'
+                    ELSE '20:40:00'
+                END
+            )
+    </select>
+
+    <!-- 根据教室获取对应的教秘账号 -->
+    <select id="getSecAccountByRoomNum" resultType="String">
+        SELECT ts.sec_account
+        FROM classroom c
+        LEFT JOIN college col ON c.college_id = col.college_id
+        LEFT JOIN teach_secretary ts ON col.college_id = ts.college_id
+        WHERE c.room_num = #{roomNum}
+        LIMIT 1
+    </select>
+
+    <!-- 检查用户账号是否存在于users表中 -->
+    <select id="checkUserExists" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM users
+        WHERE user_account = #{userAccount}
+    </select>
+
+</mapper>
