@@ -1,7 +1,9 @@
 package demo.campus_management_system.controller;
 
 
+import demo.campus_management_system.dao.dao_interface.SuperAdminMapper;
 import demo.campus_management_system.entity.DTO.ListLogsDTO;
+import demo.campus_management_system.entity.DTO.UpdateUsersDTO;
 import demo.campus_management_system.service.impl.SuperAdminImpl;
 import demo.campus_management_system.util.JwtUtil;
 import demo.campus_management_system.util.ResultDTO;
@@ -13,9 +15,37 @@ import java.util.List;
 
 @RestController
 @RequestMapping("admin")
-public class SuperAdmin {
+public class SuperAdminController {
     @Autowired
     private SuperAdminImpl superAdminImpl;
+
+    @Autowired
+    private SuperAdminMapper superAdminMapper;
+
+    //更新用户数据
+    @PostMapping("updateUsers")
+    public ResultDTO<Boolean> updateUsers(@RequestHeader(value = "Authorization") String token, @RequestBody UpdateUsersDTO updateUsersDTO) {
+        try {
+
+            //打印测试
+//            System.out.println(JwtUtil.getUserAccountToken(token) + "----" + JwtUtil.getUserPasswordToken(token));
+//            System.out.println("usersDTO=" + "\n" + updateUsersDTO.getTotal());
+            String account = JwtUtil.getUserAccountToken(token);
+//            System.out.println("account=" + account + "---" + "password=" + password);
+
+            //先判断token正确性
+            if (account == null || "error".equals(account)) {
+                return ResultDTO.fail(401, "未登录或Token失效");
+            }
+            superAdminImpl.updateUsers(token, updateUsersDTO);
+            return ResultDTO.success(true);
+
+
+        } catch (Exception e) {
+            System.out.println("e=" + e);
+            return ResultDTO.fail(500, e.toString());
+        }
+    }
 
 
     //日志显示
@@ -61,7 +91,6 @@ public class SuperAdmin {
             //返回数据
             return data;
         }
-
     }
 
 

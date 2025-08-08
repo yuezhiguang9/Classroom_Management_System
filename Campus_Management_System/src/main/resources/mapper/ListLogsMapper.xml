@@ -86,9 +86,78 @@
         <if test="(date_start == null or date_start == '') and (date_end != null and date_end != '')">
             AND classroom_resource.res_date &lt;= #{date_end}
         </if>
-
-
     </select>
+
+    <select id="selectSuperAdmin">
+        select case when count(*) > 0 then true else false end
+        from super_admin
+        where account = #{account}
+          and password = #{password}
+    </select>
+
+    <update id="editUsers" parameterType="demo.campus_management_system.entity.DTO.UpdateUsersDTO">
+        UPDATE users
+        <set>
+            <if test="account != null and account != ''">
+                user_account= #{account},
+            </if>
+            <if test="name != null and name != ''">
+                user_name = #{name},
+            </if>
+            <if test="password != null and password != ''">
+                user_password = #{password},
+            </if>
+            <if test="phone != null and phone != ''">
+                user_phone = #{phone},
+            </if>
+            <if test="college_id != null and college_id != ''">
+                college_id = #{college_id},
+            </if>
+        </set>
+        WHERE user_account = #{account}
+    </update>
+
+    <update id="editTeach" parameterType="demo.campus_management_system.entity.DTO.UpdateUsersDTO">
+        UPDATE teach_secretary
+        <set>
+            <if test="account != null and account != ''">
+                sec_account= #{account},
+            </if>
+            <if test="name != null and name != ''">
+                sec_name = #{name},
+            </if>
+            <if test="password != null and password != ''">
+                sec_password = #{password},
+            </if>
+            <if test="phone != null and phone != ''">
+                office_phone = #{phone},
+            </if>
+            <if test="college_id != null and college_id != ''">
+                college_id = #{college_id},
+            </if>
+        </set>
+        WHERE sec_account = #{account}
+    </update>
+
+
+    <update id="editClassMgr" parameterType="demo.campus_management_system.entity.DTO.UpdateUsersDTO">
+        UPDATE classroom_manager
+        <set>
+            <if test="account != null and account != ''">
+                mgr_account= #{account},
+            </if>
+            <if test="password != null and password != ''">
+                mgr_password = #{password},
+            </if>
+            <if test="phone != null and phone != ''">
+                mgr_phone = #{phone},
+            </if>
+            <if test="building_id != null and building_id != ''">
+                building_id = #{building_id},
+            </if>
+        </set>
+        WHERE mgr_account = #{account}
+    </update>
 
 
 </mapper>

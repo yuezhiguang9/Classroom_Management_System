@@ -17,7 +17,7 @@ public class JwtUtil {
     public static String createToken(String user_account, String user_password) {
         return Jwts.builder()
                 .setSubject(user_account)   //标准声明
-                .claim("user_pasword", user_password)    //自定义生命
+                .claim("user_password", user_password)    //自定义生命
                 .setIssuedAt(new Date())    //签发时间
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME * 1000))    //过期时间
                 .signWith(SECRET_KEY)   //签名算法和密钥
