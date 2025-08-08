@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding = "UTF-8" ?>
+<?xml version="1.0" encoding ="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -23,7 +23,6 @@
         where apply_book_time between #{StartTime} and #{EndTime}
           and apply_status = '已拒绝'
     </select>
-
 
     <resultMap id="listLogsVOMap" type="demo.campus_management_system.entity.VO.ListLogsVO">
         <result property="user_name" column="user_name"/>
@@ -158,6 +157,9 @@
         </set>
         WHERE mgr_account = #{account}
     </update>
+
+
+
 
 
 </mapper>

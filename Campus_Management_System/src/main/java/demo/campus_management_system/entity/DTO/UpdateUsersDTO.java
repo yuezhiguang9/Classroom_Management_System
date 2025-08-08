@@ -1,6 +1,7 @@
 package demo.campus_management_system.entity.DTO;
 
 public class UpdateUsersDTO {
+
     private String account;
 
     private String name;
@@ -12,6 +13,7 @@ public class UpdateUsersDTO {
 
     private String building_id;
 
+    //测试时必填！
     private String user_type;
 
     public String getAccount() {

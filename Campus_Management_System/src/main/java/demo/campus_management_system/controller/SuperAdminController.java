@@ -2,11 +2,11 @@ package demo.campus_management_system.controller;
 
 
 import demo.campus_management_system.dao.dao_interface.SuperAdminMapper;
-import demo.campus_management_system.entity.DTO.ListLogsDTO;
-import demo.campus_management_system.entity.DTO.UpdateUsersDTO;
+import demo.campus_management_system.entity.DTO.*;
 import demo.campus_management_system.service.impl.SuperAdminImpl;
+import demo.campus_management_system.service.service_interface.SuperAdmin;
 import demo.campus_management_system.util.JwtUtil;
-import demo.campus_management_system.util.ResultDTO;
+import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,6 +47,47 @@ public class SuperAdminController {
         }
     }
 
+    //删除用户数据
+    @GetMapping("deleteUsers")
+    public ResultDTO<Boolean> deleteUsers(
+            @RequestHeader(value = "Authorization") String token,
+            @RequestParam String account,  // 要删除的用户账号
+            @RequestParam String user_type  // 用户类型（user/teach_sec/class_mgr）
+    ) {
+        try {
+            // 验证token有效性
+            String adminAccount = JwtUtil.getUserAccountToken(token);
+            if (adminAccount == null || "error".equals(adminAccount)) {
+                return ResultDTO.fail(401, "未登录或Token失效");
+            }
+
+            // 封装删除参数
+            DeleteUsersDTO deleteDTO = new DeleteUsersDTO();
+            deleteDTO.setAccount(account);
+            deleteDTO.setUser_type(user_type);
+
+            // 调用服务层执行删除
+            return superAdminImpl.deleteUsers(token, deleteDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResultDTO.fail(500, "服务器错误：" + e.getMessage());
+        }
+    }
+
+
+    //添加用户数据
+    @PostMapping("addUsers")
+    public ResultDTO<Boolean> addUsers(
+            @RequestHeader(value = "Authorization") String token,
+            @RequestBody AddUsersDTO addUsersDTO) {
+        try {
+            // 调用服务层执行新增操作
+            return superAdminImpl.addUsers(token, addUsersDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResultDTO.fail(500, "服务器错误：" + e.getMessage());
+        }
+    }
 
     //日志显示
     @GetMapping("listLogs")
@@ -93,5 +134,26 @@ public class SuperAdminController {
         }
     }
 
+
+    // 数据统计与分析
+
+    @Resource
+    private SuperAdmin superAdminService;
+
+    @GetMapping("/analyzeData")
+    public ResultDTO<List<AnalyzeDataDTO>> analyzeData(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(required = false) String date_start,
+            @RequestParam(required = false) String date_end,
+            @RequestParam(required = false) String college_id,
+            @RequestParam(required = false) String building_id,
+            @RequestParam(required = false) String room_type,
+            @RequestParam(required = false) String dataType,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+
+        return superAdminService.analyzeData(token, date_start, date_end, college_id,
+                building_id, room_type, dataType, page, size);
+    }
 
 }

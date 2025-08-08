@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="demo.campus_management_system.dao.dao_interface.SuperAdminMapper">
+
+<!-- 1. 总用户数（users表记录数） -->
+<select id="countTotalUsers" resultType="java.lang.Integer">
+    SELECT COUNT(*) FROM users
+</select>
+
+        <!-- 2. 活跃用户数（近30天有登录记录的distinct用户） -->
+<select id="countActiveUsers" resultType="java.lang.Integer">
+SELECT COUNT(DISTINCT user_account)
+FROM login
+WHERE login_time >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+</select>
+
+        <!-- 3. 总预约数（apply_info表，支持日期筛选） -->
+<select id="countTotalApplies" resultType="java.lang.Integer">
+SELECT COUNT(*)
+FROM apply_info
+<where>
+    <if test="dateStart != null and dateStart != ''">
+        AND apply_book_time >= STR_TO_DATE(#{dateStart}, '%Y-%m-%d')
+    </if>
+    <if test="dateEnd != null and dateEnd != ''">
+        AND apply_book_time &lt;= STR_TO_DATE(#{dateEnd}, '%Y-%m-%d')
+    </if>
+</where>
+</select>
+
+        <!-- 4. 预约成功率（已批准数量 / 总申请数量，保留2位小数） -->
+<select id="calculateApprovalRate" resultType="java.lang.String">
+SELECT
+CONCAT(
+ROUND(
+(SUM(CASE WHEN apply_status = '已批准' THEN 1 ELSE 0 END) / COUNT(*)) * 100,
+2
+),
+'%'
+) AS approval_rate
+FROM apply_info
+<where>
+    <if test="dateStart != null and dateStart != ''">
+        AND apply_book_time >= STR_TO_DATE(#{dateStart}, '%Y-%m-%d')
+    </if>
+    <if test="dateEnd != null and dateEnd != ''">
+        AND apply_book_time &lt;= STR_TO_DATE(#{dateEnd}, '%Y-%m-%d')
+    </if>
+</where>
+</select>
+
+        <!-- 5. 教室使用率（已预订资源数 / 总资源数，保留2位小数） -->
+<select id="calculateClassroomUsageRate" resultType="java.lang.String">
+SELECT
+CONCAT(
+ROUND(
+(SUM(CASE WHEN res_room_status = '已预订' THEN 1 ELSE 0 END) / COUNT(*)) * 100,
+2
+),
+'%'
+) AS usage_rate
+FROM classroom_resource cr
+LEFT JOIN classroom c ON cr.room_num = c.room_num
+<where>
+    <if test="dateStart != null and dateStart != ''">
+        AND cr.res_date >= STR_TO_DATE(#{dateStart}, '%Y-%m-%d')
+    </if>
+    <if test="dateEnd != null and dateEnd != ''">
+        AND cr.res_date &lt;= STR_TO_DATE(#{dateEnd}, '%Y-%m-%d')
+    </if>
+    <if test="buildingId != null and buildingId != ''">
+        AND c.building_id = #{buildingId}
+    </if>
+    <if test="roomType != null and roomType != ''">
+        AND c.room_type = #{roomType}
+    </if>
+</where>
+</select>
+
+        <!-- 6. 教室类型分布（按room_type分组统计数量） -->
+<select id="countRoomTypeDistribution" resultType="demo.campus_management_system.entity.DTO.AnalyzeDataDTO">
+SELECT
+c.room_type AS room_type,
+COUNT(*) AS room_type_count
+FROM classroom c
+<where>
+    <if test="collegeId != null and collegeId != ''">
+        AND c.college_id = #{collegeId}
+    </if>
+    <if test="buildingId != null and buildingId != ''">
+        AND c.building_id = #{buildingId}
+    </if>
+</where>
+GROUP BY c.room_type
+ORDER BY room_type_count DESC
+</select>
+
+        <!-- 7. 高峰时段分析（按res_period分组统计使用次数） -->
+<select id="analyzePeakPeriods" resultType="demo.campus_management_system.entity.DTO.AnalyzeDataDTO">
+SELECT
+cr.res_period AS period,
+COUNT(*) AS usage_count
+FROM classroom_resource cr
+LEFT JOIN classroom c ON cr.room_num = c.room_num
+WHERE cr.res_room_status = '已预订'
+<if test="dateStart != null and dateStart != ''">
+    AND cr.res_date >= STR_TO_DATE(#{dateStart}, '%Y-%m-%d')
+</if>
+<if test="dateEnd != null and dateEnd != ''">
+    AND cr.res_date &lt;= STR_TO_DATE(#{dateEnd}, '%Y-%m-%d')
+</if>
+<if test="buildingId != null and buildingId != ''">
+    AND c.building_id = #{buildingId}
+</if>
+<if test="roomType != null and roomType != ''">
+    AND c.room_type = #{roomType}
+</if>
+GROUP BY cr.res_period
+ORDER BY usage_count DESC
+</select>
+
+        <!-- 8. 预约详情列表（用于success类型报表） -->
+<select id="queryApplyDetails" resultType="demo.campus_management_system.entity.DTO.AnalyzeDataDTO">
+SELECT
+ai.apply_id AS apply_id,
+u.user_name AS user_name,
+b.building_name AS building_name,
+c.room_num AS room_num,
+DATE_FORMAT(ai.apply_book_time, '%Y-%m-%d %H:%i:%s') AS book_time,
+ai.apply_status AS apply_status
+FROM apply_info ai
+LEFT JOIN users u ON ai.user_account = u.user_account
+LEFT JOIN classroom_resource cr ON ai.apply_id = cr.apply_info_id
+LEFT JOIN classroom c ON cr.room_num = c.room_num
+LEFT JOIN building b ON c.building_id = b.building_id
+<where>
+    <if test="dateStart != null and dateStart != ''">
+        AND ai.apply_book_time >= STR_TO_DATE(#{dateStart}, '%Y-%m-%d')
+    </if>
+    <if test="dateEnd != null and dateEnd != ''">
+        AND ai.apply_book_time &lt;= STR_TO_DATE(#{dateEnd}, '%Y-%m-%d')
+    </if>
+    <if test="collegeId != null and collegeId != ''">
+        AND u.college_id = #{collegeId}
+    </if>
+    <if test="status != null and status != ''">
+        AND ai.apply_status = #{status}
+    </if>
+</where>
+ORDER BY ai.apply_book_time DESC
+</select>
+
+</mapper>
