@@ -2,6 +2,7 @@ package demo.campus_management_system.controller;
 
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import demo.campus_management_system.entity.DTO.ClassroomApplyDTO;
 import demo.campus_management_system.entity.DTO.SelectClassroomDTO;
 import demo.campus_management_system.service.impl.UserServiceImpl;
 import demo.campus_management_system.util.JwtUtil;
@@ -9,6 +10,7 @@ import demo.campus_management_system.util.ResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -52,4 +54,24 @@ public class UsersController {
         }
     }
 
+    @PostMapping("submitClassroomApply")
+    public ResultDTO<Boolean> submitClassroomApply(
+            @RequestHeader(value = "Authorization") String token,   //token
+            @RequestBody ClassroomApplyDTO classroomApplyDTO) {
+        //验证token
+        String account = JwtUtil.getUserAccountToken(token);
+        if (account == null || "error".equals(account)) {
+            return ResultDTO.fail(400, "身份验证失败");
+        } else {
+            try {
+                return userService.submitClassroomApply(account, classroomApplyDTO);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ResultDTO.fail(400, e.toString());
+            }
+
+        }
+    }
+
+    
 }

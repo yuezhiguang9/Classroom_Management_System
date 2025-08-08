@@ -3,6 +3,9 @@ package demo.campus_management_system.entity.DTO;
 import java.util.Date;
 
 public class SelectClassroomDTO {
+    //教室资源编号
+    private String res_id;
+
     //楼名
     private String building_name;
     //教室名称
@@ -21,6 +24,14 @@ public class SelectClassroomDTO {
     private String room_status;
     //日期
     private String res_date;
+
+    public String getRes_id() {
+        return res_id;
+    }
+
+    public void setRes_id(String res_id) {
+        this.res_id = res_id;
+    }
 
     public String getRoom_num() {
         return room_num;

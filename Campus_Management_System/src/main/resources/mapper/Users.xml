@@ -5,6 +5,7 @@
 <mapper namespace="demo.campus_management_system.dao.dao_interface.UsersMapper">
 
     <resultMap id="selectClassroom" type="demo.campus_management_system.entity.DTO.SelectClassroomDTO">
+        <result property="res_id" column="res_id"/>
         <result property="building_name" column="building_name"/>
         <result property="room_num" column="room_num"/>
         <result property="capacity" column="room_capacity"/>
@@ -17,7 +18,7 @@
     </resultMap>
     <select id="selectClassroom" resultMap="selectClassroom">
         select
-        building.building_name,classroom.room_num,room_capacity,room_type,res_week,res_day_of_week,res_period,res_room_status,res_date
+        res_id,building.building_name,classroom.room_num,room_capacity,room_type,res_week,res_day_of_week,res_period,res_room_status,res_date
         from classroom,classroom_resource,building
         where classroom.building_id = building.building_id
         and classroom.room_num = classroom_resource.room_num
@@ -45,8 +46,43 @@
         <if test="date!=null and date !=''">
             and DATE(res_date) = DATE(#{date})
         </if>
-
     </select>
+
+
+    <!--    //预约教室部分-->
+    <!--    查询选中的教室资源是不是空闲状态-->
+    <select id="selectRoomStatus">
+        select classroom_resource.res_room_status
+        from classroom_resource
+        where classroom_resource.res_id = #{res_id}
+    </select>
+   
+
+    <!-- 通过用户账号查找教秘 -->
+    <select id="selectSecAccountByUser" resultType="java.lang.String">
+        SELECT teach_secretary.sec_account
+        FROM users
+        INNER JOIN college ON users.college_id = college.college_id
+        INNER JOIN teach_secretary ON teach_secretary.college_id = college.college_id
+        WHERE users.user_account = #{user_account}
+        LIMIT 1  <!-- 确保返回单条结果 -->
+    </select>
+
+    <!--    登记预约信息-->
+    <insert id="submitClassroomApply">
+        insert into apply_info(apply_id, apply_person_count, apply_purpose, apply_book_time, apply_status,
+                               apply_reject_reason, user_account, sec_account, user_cancel)
+        values (#{apply_id}, #{person_count}, #{purpose}, #{apply_book_time}, "待审核", "", #{user_account},
+                #{sec_account}, 0)
+    </insert>
+
+    <update id="updateRes">
+        update classroom_resource
+        set res_room_status = "已预订",
+            apply_info_id   = #{apply_id}
+        where res_id = #{res_id}
+    </update>
+    <!--    预约教室end-->
 
 
 </mapper>
