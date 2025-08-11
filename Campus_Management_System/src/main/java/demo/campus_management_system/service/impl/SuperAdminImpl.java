@@ -13,7 +13,6 @@ import demo.campus_management_system.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -259,9 +258,7 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
 
     // 数据统计与分析
     @Override
-    public ResultDTO<List<AnalyzeDataDTO>> analyzeData(String token, String dateStart, String dateEnd,
-                                                       String collegeId, String buildingId, String roomType,
-                                                       String dataType, Integer page, Integer size) {
+    public ResultDTO<List<AnalyzeDataDTO>> analyzeData(String token, String dateStart, String dateEnd) {
         try {
             // 1. 权限验证（仅超级管理员）
             String account = JwtUtil.getUserAccountToken(token);
@@ -271,48 +268,24 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
                 return ResultDTO.fail(401, "无权限访问，仅超级管理员可查看");
             }
 
-            // 2. 初始化分页
-            Page<AnalyzeDataDTO> pageObj = new Page<>(page, size);
-            List<AnalyzeDataDTO> resultList = new ArrayList<>();
-
             // 3. 基础统计数据（所有类型均返回）
             AnalyzeDataDTO baseStats = new AnalyzeDataDTO();
             baseStats.setTotal_users(superAdminMapper.countTotalUsers());
+            baseStats.setTotal_teach_secs(superAdminMapper.countTotalTeachSecs());
+            baseStats.setTotal_classroom_mgrs(superAdminMapper.countTotalClassroomMgrs());
             baseStats.setActive_users(superAdminMapper.countActiveUsers());
             baseStats.setTotal_applies(superAdminMapper.countTotalApplies(dateStart, dateEnd));
-            baseStats.setApproval_rate(superAdminMapper.calculateApprovalRate(dateStart, dateEnd));
-            baseStats.setClassroom_usage_rate(superAdminMapper.calculateClassroomUsageRate(dateStart, dateEnd, buildingId, roomType));
-            baseStats.setPage(page);
-            baseStats.setSize(size);
-            resultList.add(baseStats);
 
-            // 4. 根据dataType添加对应统计数据
-            if ("usage".equals(dataType) || "all".equals(dataType) || dataType == null) {
-                // 教室类型分布
-                IPage<AnalyzeDataDTO> roomTypePage = superAdminMapper.countRoomTypeDistribution(pageObj, collegeId, buildingId);
-                baseStats.setTotal((int) roomTypePage.getTotal());
-                resultList.addAll(roomTypePage.getRecords());
+            //将结果封装到DTO中
+            List<AnalyzeDataDTO> activeClassrooms = superAdminMapper.countFrequentlyUsedRooms(dateStart, dateEnd);
+            if (activeClassrooms == null) {
+                activeClassrooms = new ArrayList<>();
             }
+            baseStats.setActive_classroom(activeClassrooms);
 
-            if ("peak".equals(dataType) || "all".equals(dataType) || dataType == null) {
-                // 高峰时段分析
-                IPage<AnalyzeDataDTO> peakPage = superAdminMapper.analyzePeakPeriods(pageObj, dateStart, dateEnd, buildingId, roomType);
-                baseStats.setTotal((int) peakPage.getTotal());
-                resultList.addAll(peakPage.getRecords());
-            }
 
-            if ("success".equals(dataType) || "all".equals(dataType) || dataType == null) {
-                // 预约成功率详情
-                IPage<AnalyzeDataDTO> applyPage = superAdminMapper.queryApplyDetails(pageObj, dateStart, dateEnd, collegeId, null);
-                baseStats.setTotal((int) applyPage.getTotal());
-                resultList.addAll(applyPage.getRecords());
-            }
 
-            if ("activity".equals(dataType) || "all".equals(dataType) || dataType == null) {
-                // 活跃用户数据已包含在baseStats中，无需额外查询
-            }
-
-            return ResultDTO.success(resultList);
+            return ResultDTO.success(Collections.singletonList(baseStats));
         } catch (Exception e) {
             e.printStackTrace();
             return ResultDTO.fail(500, "数据统计失败：" + e.getMessage());

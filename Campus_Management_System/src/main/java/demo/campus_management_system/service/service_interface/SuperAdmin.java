@@ -12,10 +12,6 @@ public interface SuperAdmin extends IService<Super_admin> {
     ResultDTO<Boolean> deleteUsers(String token, DeleteUsersDTO deleteUsersDTO);
     // 添加用户方法
     ResultDTO<Boolean> addUsers(String token, AddUsersDTO addUsersDTO);
-    // 数据统计与分析方法
-    ResultDTO<List<AnalyzeDataDTO>> analyzeData(
-            String date_start, String date_end, String college_id,
-            String building_id, String room_type, String dataType,
-            String type, Integer page, Integer size);
-
+    // 数据统计与分析
+    ResultDTO<List<AnalyzeDataDTO>> analyzeData(String token, String dateStart, String dateEnd);
 }

@@ -79,29 +79,23 @@ public interface SuperAdminMapper extends BaseMapper<Super_admin> {
 
 
     //数据统计与分析
-
-    // 1. 统计总用户数
+    // 1. 统计总用户数、教秘数、教室管理员数
     Integer countTotalUsers();
+    Integer countTotalTeachSecs();
+    Integer countTotalClassroomMgrs();
     // 2. 统计活跃用户数（近30天登录）
     Integer countActiveUsers();
     // 3. 统计总预约数
     Integer countTotalApplies(@Param("dateStart") String dateStart, @Param("dateEnd") String dateEnd);
-    // 4. 计算预约成功率
-    String calculateApprovalRate(@Param("dateStart") String dateStart, @Param("dateEnd") String dateEnd);
-    // 5. 计算教室使用率
-    String calculateClassroomUsageRate(@Param("dateStart") String dateStart, @Param("dateEnd") String dateEnd,
-                                       @Param("buildingId") String buildingId, @Param("roomType") String roomType);
+    // 4. 统计经常使用的教室（前五）
+    List<AnalyzeDataDTO> countFrequentlyUsedRooms(
+            @Param("dateStart") String dateStart,
+            @Param("dateEnd") String dateEnd);
     // 6. 统计教室类型分布
     IPage<AnalyzeDataDTO> countRoomTypeDistribution(Page<AnalyzeDataDTO> page,
                                                     @Param("collegeId") String collegeId, @Param("buildingId") String buildingId);
-    // 7. 分析高峰时段（按节次统计使用次数）
-    IPage<AnalyzeDataDTO> analyzePeakPeriods(Page<AnalyzeDataDTO> page,
-                                             @Param("dateStart") String dateStart, @Param("dateEnd") String dateEnd,
-                                             @Param("buildingId") String buildingId, @Param("roomType") String roomType);
-    // 8. 查询预约详情列表（用于success类型报表）
-    IPage<AnalyzeDataDTO> queryApplyDetails(Page<AnalyzeDataDTO> page,
-                                            @Param("dateStart") String dateStart, @Param("dateEnd") String dateEnd,
-                                            @Param("collegeId") String collegeId, @Param("status") String status);
 
 
 }
+
+

@@ -135,7 +135,7 @@ public class SuperAdminController {
     }
 
 
-    // 数据统计与分析
+    // 数据统计与分析analyzeData
 
     @Resource
     private SuperAdmin superAdminService;
@@ -152,8 +152,7 @@ public class SuperAdminController {
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
 
-        return superAdminService.analyzeData(token, date_start, date_end, college_id,
-                building_id, room_type, dataType, page, size);
+        return superAdminService.analyzeData(token, date_start, date_end);
     }
 
 }
