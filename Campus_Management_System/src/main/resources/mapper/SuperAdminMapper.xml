@@ -35,7 +35,7 @@
             </if>
         </where>
     </select>
-    <!-- 4. 经常使用的教室统计（按使用次数排序取前五，仅返回room_num） -->
+    <!-- 4. 经常使用的教室统计（按使用次数排序取前五-->
     <select id="countFrequentlyUsedRooms" resultType="demo.campus_management_system.entity.DTO.AnalyzeDataDTO">
         SELECT
         b.building_name AS building_name,
@@ -54,26 +54,42 @@
         </where>
         GROUP BY b.building_name,cr.room_num
         ORDER BY COUNT(*) DESC
-        LIMIT 5  -- 只取前五
+        LIMIT 5
     </select>
-
-
-    <!-- 6. 教室类型分布（按room_type分组统计数量） -->
-    <select id="countRoomTypeDistribution" resultType="demo.campus_management_system.entity.DTO.AnalyzeDataDTO">
+    <!-- 5. 经常使用的教室类型统计（按使用次数排序取前五） -->
+    <select id="countFrequentlyUsedRoomTypes" resultType="demo.campus_management_system.entity.DTO.AnalyzeDataDTO">
         SELECT
-        c.room_type AS room_type,
-        COUNT(*) AS room_type_count
-        FROM classroom c
+        c.room_type AS active_classroom_type,
+        COUNT(*) AS use_count
+        FROM apply_info ai
+        INNER JOIN classroom_resource cr ON ai.apply_id = cr.apply_info_id
+        INNER JOIN classroom c ON cr.room_num = c.room_num
         <where>
-            <if test="collegeId != null and collegeId != ''">
-                AND c.college_id = #{collegeId}
+            <if test="dateStart != null and dateStart != ''">
+                AND ai.apply_book_time >= STR_TO_DATE(#{dateStart}, '%Y-%m-%d')
             </if>
-            <if test="buildingId != null and buildingId != ''">
-                AND c.building_id = #{buildingId}
+            <if test="dateEnd != null and dateEnd != ''">
+                AND ai.apply_book_time &lt;= STR_TO_DATE(#{dateEnd}, '%Y-%m-%d')
             </if>
         </where>
         GROUP BY c.room_type
-        ORDER BY room_type_count DESC
+        ORDER BY COUNT(*) DESC
+        LIMIT 5  -- 只取前五
     </select>
 
+    <!-- 6. 当月每一栋楼预约数统计 -->
+    <select id="countMonthlyBuildingApplies" resultType="demo.campus_management_system.entity.DTO.AnalyzeDataDTO">
+        SELECT
+            b.building_name AS building_name,
+            COUNT(*) AS total_applies
+        FROM apply_info ai
+                 INNER JOIN classroom_resource cr ON ai.apply_id = cr.apply_info_id
+                 INNER JOIN classroom c ON cr.room_num = c.room_num
+                 INNER JOIN building b ON c.building_id = b.building_id
+        WHERE
+            -- 筛选当月数据
+            DATE_FORMAT(ai.apply_book_time, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
+        GROUP BY b.building_name
+        ORDER BY total_applies DESC
+    </select>
 </mapper>

@@ -3,6 +3,7 @@ package demo.campus_management_system.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.campus_management_system.dao.dao_interface.SuperAdminMapper;
 import demo.campus_management_system.entity.DTO.*;
 import demo.campus_management_system.entity.Super_admin;
@@ -23,6 +24,8 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
 
     @Autowired
     SuperAdminMapper superAdminMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     //编辑用户
     public ResultDTO<Boolean> updateUsers(String token, UpdateUsersDTO updateUsersDTO) {
@@ -276,13 +279,21 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
             baseStats.setActive_users(superAdminMapper.countActiveUsers());
             baseStats.setTotal_applies(superAdminMapper.countTotalApplies(dateStart, dateEnd));
 
-            //将结果封装到DTO中
+            // 2. 查询经常使用的教室（前5）
             List<AnalyzeDataDTO> activeClassrooms = superAdminMapper.countFrequentlyUsedRooms(dateStart, dateEnd);
-            if (activeClassrooms == null) {
-                activeClassrooms = new ArrayList<>();
-            }
-            baseStats.setActive_classroom(activeClassrooms);
+            // 设置活跃教室数据到 active_classroom 字段
+            baseStats.setActive_classroom(activeClassrooms != null ? activeClassrooms : new ArrayList<>());
 
+
+
+            // 4. 经常使用的教室类型（前5）
+            List<AnalyzeDataDTO> activeClassroomTypes = superAdminMapper.countFrequentlyUsedRoomTypes(dateStart, dateEnd);
+            baseStats.setActive_classroom_type(activeClassroomTypes != null ? activeClassroomTypes : new ArrayList<>());
+
+            // 3. 统计当月每栋楼预约数
+            List<AnalyzeDataDTO> buildingApplies = superAdminMapper.countMonthlyBuildingApplies();
+            // 转换为JSON字符串存储到total_of_building
+            baseStats.setTotal_of_building(objectMapper.writeValueAsString(buildingApplies != null ? buildingApplies : new ArrayList<>()));
 
 
             return ResultDTO.success(Collections.singletonList(baseStats));

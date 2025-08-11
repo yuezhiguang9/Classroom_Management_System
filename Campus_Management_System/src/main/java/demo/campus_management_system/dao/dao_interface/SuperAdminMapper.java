@@ -91,10 +91,12 @@ public interface SuperAdminMapper extends BaseMapper<Super_admin> {
     List<AnalyzeDataDTO> countFrequentlyUsedRooms(
             @Param("dateStart") String dateStart,
             @Param("dateEnd") String dateEnd);
-    // 6. 统计教室类型分布
-    IPage<AnalyzeDataDTO> countRoomTypeDistribution(Page<AnalyzeDataDTO> page,
-                                                    @Param("collegeId") String collegeId, @Param("buildingId") String buildingId);
-
+    // 5. 统计经常使用的教室类型（前五）
+    List<AnalyzeDataDTO> countFrequentlyUsedRoomTypes(
+            @Param("dateStart") String dateStart,
+            @Param("dateEnd") String dateEnd);
+    // 6. 统计当月每栋楼的预约数
+    List<AnalyzeDataDTO> countMonthlyBuildingApplies();
 
 }
 

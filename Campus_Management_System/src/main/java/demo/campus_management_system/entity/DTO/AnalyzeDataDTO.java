@@ -17,7 +17,7 @@ public class AnalyzeDataDTO {
     private List<AnalyzeDataDTO> active_classroom;
 
     // 经常使用的教室类型
-    private String active_classroom_type;
+    private List<AnalyzeDataDTO> active_classroom_type;
 
     //每月每栋预约数
     private String total_of_building;
@@ -72,11 +72,12 @@ public class AnalyzeDataDTO {
         this.active_classroom = active_classroom;
     }
 
-    public String getActive_classroom_type() {
+
+    public List<AnalyzeDataDTO> getActive_classroom_type() {
         return active_classroom_type;
     }
 
-    public void setActive_classroom_type(String active_classroom_type) {
+    public void setActive_classroom_type(List<AnalyzeDataDTO> active_classroom_type) {
         this.active_classroom_type = active_classroom_type;
     }
 
