@@ -4,15 +4,18 @@
 
     <!-- 1. 总用户数、教秘数、教室管理员数 -->
     <select id="countTotalUsers" resultType="java.lang.Integer">
-        SELECT COUNT(*) FROM users
+        SELECT COUNT(*)
+        FROM users
     </select>
 
     <select id="countTotalTeachSecs" resultType="java.lang.Integer">
-        SELECT COUNT(*) FROM teach_secretary
+        SELECT COUNT(*)
+        FROM teach_secretary
     </select>
 
     <select id="countTotalClassroomMgrs" resultType="java.lang.Integer">
-        SELECT COUNT(*) FROM classroom_manager
+        SELECT COUNT(*)
+        FROM classroom_manager
     </select>
 
     <!-- 2. 活跃用户数（近30天有登录记录的distinct用户） -->
@@ -35,11 +38,21 @@
             </if>
         </where>
     </select>
+
+
+    <resultMap id="room_usage" type="demo.campus_management_system.entity.VO.RoomUsageVO">
+        <result property="building_name" column="building_name"/>
+        <result property="room_num" column="room_num"/>
+        <result property="userAccount" column="userAccount"/>
+    </resultMap>
+
     <!-- 4. 经常使用的教室统计（按使用次数排序取前五-->
-    <select id="countFrequentlyUsedRooms" resultType="demo.campus_management_system.entity.DTO.AnalyzeDataDTO">
+    <select id="countFrequentlyUsedRooms"
+            resultMap="room_usage">
         SELECT
         b.building_name AS building_name,
-        cr.room_num AS room_num
+        cr.room_num AS room_num,
+        COUNT(*) AS userAccount
         FROM apply_info ai
         INNER JOIN classroom_resource cr ON ai.apply_id = cr.apply_info_id
         INNER JOIN classroom c ON cr.room_num = c.room_num
@@ -56,11 +69,20 @@
         ORDER BY COUNT(*) DESC
         LIMIT 5
     </select>
+
+
+    <resultMap id="roomtypeusage" type="demo.campus_management_system.entity.VO.RoomTypeUsageVO">
+        <result property="room_type" column="room_type"/>
+        <result property="user_count" column="user_count"/>
+    </resultMap>
+
+
     <!-- 5. 经常使用的教室类型统计（按使用次数排序取前五） -->
-    <select id="countFrequentlyUsedRoomTypes" resultType="demo.campus_management_system.entity.DTO.AnalyzeDataDTO">
+    <select id="countFrequentlyUsedRoomTypes"
+            resultMap="roomtypeusage">
         SELECT
-        c.room_type AS active_classroom_type,
-        COUNT(*) AS use_count
+        c.room_type AS room_type,
+        COUNT(*) AS user_count
         FROM apply_info ai
         INNER JOIN classroom_resource cr ON ai.apply_id = cr.apply_info_id
         INNER JOIN classroom c ON cr.room_num = c.room_num
@@ -74,14 +96,20 @@
         </where>
         GROUP BY c.room_type
         ORDER BY COUNT(*) DESC
-        LIMIT 5  -- 只取前五
+        LIMIT 5 -- 只取前五
     </select>
 
+    <resultMap id="buildingUsage" type="demo.campus_management_system.entity.VO.BuildingUsageVO">
+        <result property="building_name" column="building_name"/>
+        <result property="apply_count" column="apply_count"/>
+    </resultMap>
+
+
     <!-- 6. 当月每一栋楼预约数统计 -->
-    <select id="countMonthlyBuildingApplies" resultType="demo.campus_management_system.entity.DTO.AnalyzeDataDTO">
-        SELECT
-            b.building_name AS building_name,
-            COUNT(*) AS total_applies
+    <select id="countMonthlyBuildingApplies"
+            resultMap="buildingUsage">
+        SELECT b.building_name AS building_name,
+               COUNT(*)        AS apply_count
         FROM apply_info ai
                  INNER JOIN classroom_resource cr ON ai.apply_id = cr.apply_info_id
                  INNER JOIN classroom c ON cr.room_num = c.room_num
@@ -90,6 +118,6 @@
             -- 筛选当月数据
             DATE_FORMAT(ai.apply_book_time, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
         GROUP BY b.building_name
-        ORDER BY total_applies DESC
+        ORDER BY apply_count DESC
     </select>
 </mapper>

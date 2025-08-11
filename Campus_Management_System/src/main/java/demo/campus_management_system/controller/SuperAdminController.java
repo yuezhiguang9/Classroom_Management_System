@@ -103,16 +103,7 @@ public class SuperAdminController {
             @RequestParam(defaultValue = "10") Integer size)  //每页条数
     {
 
-        System.out.println("apply_status=" + apply_status + "\n");
-        System.out.println("college_id=" + college_id + "\n");
-        System.out.println("building_id=" + building_id + "\n");
-        System.out.println("user_name=" + user_name + "\n");
-        System.out.println("date_start=" + date_start + "\n");
-        System.out.println("date_end=" + date_end + "\n");
-        System.out.println("page=" + page + "\n");
-        System.out.println("size=" + size + "\n");
-
-
+        
         List<ListLogsDTO> result = new ArrayList<>();
         //jwt认证
         if (JwtUtil.getUserAccountToken(token).equals("error")) {
@@ -144,13 +135,7 @@ public class SuperAdminController {
     public ResultDTO<List<AnalyzeDataDTO>> analyzeData(
             @RequestHeader("Authorization") String token,
             @RequestParam(required = false) String date_start,
-            @RequestParam(required = false) String date_end,
-            @RequestParam(required = false) String college_id,
-            @RequestParam(required = false) String building_id,
-            @RequestParam(required = false) String room_type,
-            @RequestParam(required = false) String dataType,
-            @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
+            @RequestParam(required = false) String date_end) {
 
         return superAdminService.analyzeData(token, date_start, date_end);
     }

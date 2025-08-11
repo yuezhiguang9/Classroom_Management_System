@@ -8,7 +8,10 @@ import demo.campus_management_system.entity.DTO.AddUsersDTO;
 import demo.campus_management_system.entity.DTO.AnalyzeDataDTO;
 import demo.campus_management_system.entity.DTO.UpdateUsersDTO;
 import demo.campus_management_system.entity.Super_admin;
+import demo.campus_management_system.entity.VO.BuildingUsageVO;
 import demo.campus_management_system.entity.VO.ListLogsVO;
+import demo.campus_management_system.entity.VO.RoomTypeUsageVO;
+import demo.campus_management_system.entity.VO.RoomUsageVO;
 import org.apache.ibatis.annotations.*;
 
 import java.time.LocalDateTime;
@@ -81,22 +84,29 @@ public interface SuperAdminMapper extends BaseMapper<Super_admin> {
     //数据统计与分析
     // 1. 统计总用户数、教秘数、教室管理员数
     Integer countTotalUsers();
+
     Integer countTotalTeachSecs();
+
     Integer countTotalClassroomMgrs();
+
     // 2. 统计活跃用户数（近30天登录）
     Integer countActiveUsers();
+
     // 3. 统计总预约数
     Integer countTotalApplies(@Param("dateStart") String dateStart, @Param("dateEnd") String dateEnd);
+
     // 4. 统计经常使用的教室（前五）
-    List<AnalyzeDataDTO> countFrequentlyUsedRooms(
+    List<RoomUsageVO> countFrequentlyUsedRooms(
             @Param("dateStart") String dateStart,
             @Param("dateEnd") String dateEnd);
+
     // 5. 统计经常使用的教室类型（前五）
-    List<AnalyzeDataDTO> countFrequentlyUsedRoomTypes(
+    List<RoomTypeUsageVO> countFrequentlyUsedRoomTypes(
             @Param("dateStart") String dateStart,
             @Param("dateEnd") String dateEnd);
+
     // 6. 统计当月每栋楼的预约数
-    List<AnalyzeDataDTO> countMonthlyBuildingApplies();
+    List<BuildingUsageVO> countMonthlyBuildingApplies();
 
 }
 

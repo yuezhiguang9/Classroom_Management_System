@@ -7,7 +7,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.campus_management_system.dao.dao_interface.SuperAdminMapper;
 import demo.campus_management_system.entity.DTO.*;
 import demo.campus_management_system.entity.Super_admin;
+import demo.campus_management_system.entity.VO.BuildingUsageVO;
 import demo.campus_management_system.entity.VO.ListLogsVO;
+import demo.campus_management_system.entity.VO.RoomTypeUsageVO;
+import demo.campus_management_system.entity.VO.RoomUsageVO;
 import demo.campus_management_system.service.service_interface.SuperAdmin;
 import demo.campus_management_system.util.DataUtils;
 import demo.campus_management_system.util.JwtUtil;
@@ -280,20 +283,21 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
             baseStats.setTotal_applies(superAdminMapper.countTotalApplies(dateStart, dateEnd));
 
             // 2. 查询经常使用的教室（前5）
-            List<AnalyzeDataDTO> activeClassrooms = superAdminMapper.countFrequentlyUsedRooms(dateStart, dateEnd);
-            // 设置活跃教室数据到 active_classroom 字段
-            baseStats.setActive_classroom(activeClassrooms != null ? activeClassrooms : new ArrayList<>());
-
+            List<RoomUsageVO> roomUsageVO;
+            roomUsageVO = superAdminMapper.countFrequentlyUsedRooms(dateStart, dateEnd);
+            baseStats.setActive_classroom(roomUsageVO);
 
 
             // 4. 经常使用的教室类型（前5）
-            List<AnalyzeDataDTO> activeClassroomTypes = superAdminMapper.countFrequentlyUsedRoomTypes(dateStart, dateEnd);
-            baseStats.setActive_classroom_type(activeClassroomTypes != null ? activeClassroomTypes : new ArrayList<>());
+            List<RoomTypeUsageVO> roomTypeUsageVOS;
+            roomTypeUsageVOS = superAdminMapper.countFrequentlyUsedRoomTypes(dateStart, dateEnd);
+            baseStats.setActive_classroom_type(roomTypeUsageVOS);
+
 
             // 3. 统计当月每栋楼预约数
-            List<AnalyzeDataDTO> buildingApplies = superAdminMapper.countMonthlyBuildingApplies();
-            // 转换为JSON字符串存储到total_of_building
-            baseStats.setTotal_of_building(objectMapper.writeValueAsString(buildingApplies != null ? buildingApplies : new ArrayList<>()));
+            List<BuildingUsageVO> buildingUsageVOS;
+            buildingUsageVOS = superAdminMapper.countMonthlyBuildingApplies();
+            baseStats.setTotal_of_building(buildingUsageVOS);
 
 
             return ResultDTO.success(Collections.singletonList(baseStats));
