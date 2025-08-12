@@ -4,6 +4,7 @@ package demo.campus_management_system.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import demo.campus_management_system.entity.DTO.ClassroomApplyDTO;
 import demo.campus_management_system.entity.DTO.SelectClassroomDTO;
+import demo.campus_management_system.entity.DTO.myReservationsDTO;
 import demo.campus_management_system.service.impl.UserServiceImpl;
 import demo.campus_management_system.util.JwtUtil;
 import demo.campus_management_system.util.ResultDTO;
@@ -73,5 +74,36 @@ public class UsersController {
         }
     }
 
-    
+
+    @GetMapping("myReservations")
+    public ResultDTO<myReservationsDTO> myReservations(
+            @RequestHeader(value = "Authorization") String token,
+            @RequestParam(required = false) String user_id,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size
+    ) {
+        //验证token
+        String account = JwtUtil.getUserAccountToken(token);
+        if (account == null || "error".equals(account)) {
+            return ResultDTO.fail(400, "身份验证失败");
+        } else {
+            return userService.myReservations(token, user_id, page, size);
+        }
+    }
+
+    @PostMapping("cancelReservation")
+    public ResultDTO<Boolean> cancelReservation(
+            @RequestHeader(value = "Authorization") String token,
+            @RequestParam() String apply_id
+    ) {
+        //验证token
+        String account = JwtUtil.getUserAccountToken(token);
+        if (account == null || "error".equals(account)) {
+            return ResultDTO.fail(400, "身份验证失败");
+        } else {
+            return userService.cancelReservation(token, apply_id);
+        }
+    }
+
+
 }
