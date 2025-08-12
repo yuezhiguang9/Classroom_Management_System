@@ -5,8 +5,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import demo.campus_management_system.dao.dao_interface.UsersMapper;
 import demo.campus_management_system.entity.DTO.ClassroomApplyDTO;
 import demo.campus_management_system.entity.DTO.SelectClassroomDTO;
+import demo.campus_management_system.entity.DTO.myReservationsDTO;
 import demo.campus_management_system.entity.Users;
+import demo.campus_management_system.entity.VO.myReservationsVO;
+import demo.campus_management_system.dao.dao_interface.ApplyInfo;
 import demo.campus_management_system.service.service_interface.UserService;
+import demo.campus_management_system.util.DataUtils;
+import demo.campus_management_system.util.JwtUtil;
 import demo.campus_management_system.util.ResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,15 +20,18 @@ import cn.hutool.core.util.IdUtil;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
+import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.List;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UsersMapper, Users> implements UserService {
     @Autowired
     UsersMapper usersMapper;
 
+    @Autowired
+    ApplyInfo applyInfo;
+
+    //查找教室
     public ResultDTO<Page<SelectClassroomDTO>> selectClassroom(
             String building_id,     //楼栋id
             Integer capacity,       //容量
@@ -69,6 +77,7 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users> implements 
     }
 
 
+    //提交预约
     //确保事物完整性
     @Transactional(rollbackFor = Exception.class)
     public ResultDTO<Boolean> submitClassroomApply(String user_account, ClassroomApplyDTO classroomApplyDTO) {
@@ -139,4 +148,82 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users> implements 
             return ResultDTO.fail(400, e.toString());
         }
     }
+
+    //查看个人记录
+    public ResultDTO<myReservationsDTO> myReservations(
+            String token,   //token
+            String user_id, //用户id
+            Integer page,   //页数
+            Integer size    //每页数量
+    ) {
+        //定义返回类
+        ResultDTO<myReservationsDTO> myReservationsDTOResultDTO = new ResultDTO<>();
+
+        try {
+            //验证身份，只有自己才能查看自己的预约记录
+            String account = JwtUtil.getUserAccountToken(token);
+            if (!account.equals(user_id)) {
+                myReservationsDTOResultDTO.setCode(400);
+                myReservationsDTOResultDTO.setMsg("身份验证失败");
+                return myReservationsDTOResultDTO;
+            }
+
+            //身份验证成功后查询
+            myReservationsDTO myReservations = new myReservationsDTO();
+            LocalDateTime StartTime = DataUtils.getStartOfCurrentWeek();
+            LocalDateTime EndTime = DataUtils.getEndOfToday();
+
+            //本周预约数
+            myReservations.setWeek_total(usersMapper.selectUserWeelTotal(user_id, StartTime, EndTime));
+            //待审核数
+            myReservations.setMy_pending(usersMapper.selectMyPending(user_id));
+            //需要分页的地方
+            Page<myReservationsVO> pageObj = new Page<>(page, size);
+            myReservations.setMyReservationsVoPage(usersMapper.selectMyReservationsVO(
+                    pageObj,
+                    user_id
+            ));
+            myReservationsDTOResultDTO.setCode(200);
+            myReservationsDTOResultDTO.setMsg("查询成功");
+            myReservationsDTOResultDTO.setData(myReservations);
+            return myReservationsDTOResultDTO;
+
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        }
+        myReservationsDTOResultDTO.setCode(400);
+        myReservationsDTOResultDTO.setMsg("查询失败");
+        return myReservationsDTOResultDTO;
+
+    }
+
+
+    //取消预约
+    public ResultDTO<Boolean> cancelReservation(String token, String apply_id) {
+        try {
+            //验证身份信息
+            String account = JwtUtil.getUserAccountToken(token);
+            //如果这个预约记录的预约人不是当前用户，或者这个记录已经取消过，或者过了使用日期
+            if (!account.equals(applyInfo.selectById(apply_id).getUserAccount()) ||
+                    applyInfo.selectById(apply_id).getUserCancel() == 1 ||
+                    applyInfo.selectById(apply_id).getUserCancel() == 2) {
+                return ResultDTO.fail(400, "你没有预约这个记录或者这个预约记录已不可取消");
+            } else {
+                int updateApplyInfoResult = usersMapper.updateApplyInfoCancel(apply_id);
+                int updateResourceResult = usersMapper.updateClassroomResource(apply_id);
+                if (updateApplyInfoResult > 0 || updateResourceResult > 0) {
+                    return ResultDTO.success(true);
+                } else {
+                    return ResultDTO.fail(400, "数据库更新失败");
+                }
+
+            }
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return ResultDTO.fail(500, "服务器内部错误");
+        }
+
+    }
+
+
 }

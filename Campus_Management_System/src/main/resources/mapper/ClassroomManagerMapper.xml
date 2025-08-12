@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding = "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="demo.campus_management_system.dao.dao_interface.ClassroomManagerMapper">
+    <update id="updateStatusOne">
+        update classroom_resource
+        set res_room_status = #{roomStatus}
+        where room_num = #{roomNum}
+          and res_date >= #{nowTime}
+          and apply_info_id is null;
+    </update>
+
+    <update id="updateStatusOnet">
+        update classroom_resource
+        set res_room_status = "已预订"
+        where room_num = #{roomNum}
+          and res_date >= #{nowTime}
+          and apply_info_id is not Null;
+    </update>
+
+    <update id="updateStatusTwo">
+        update classroom_resource
+        set res_room_status= #{roomStatus}
+        where room_num = #{roomNum}
+          and res_date between #{nowTime} and #{duration}
+    </update>
+
+</mapper>
