@@ -1,59 +1,72 @@
 package demo.campus_management_system.entity.DTO;
 
-import java.util.List;
+import lombok.Data;
 
-
-//用来传入预约信息的类
+/**
+ * 教室预约申请DTO
+ */
+@Data
 public class ClassroomApplyDTO {
-    //用户id
+    
+    /**
+     * 学号(从登录态获取)
+     */
     private String user_account;
-    //姓名
+    
+    /**
+     * 申请人姓名
+     */
     private String user_name;
-    //教室资源id
-    //因为有可能一次预约多个教室、或者多节，所以做成一个List类型的数据
-    private String[] res_id;
-    //申请理由
+    
+    /**
+     * 所属学院
+     */
+    private String college_id;
+    
+    /**
+     * 联系电话
+     */
+    private String phone;
+    
+    /**
+     * 用途
+     */
     private String purpose;
-    //参与人数
+    
+    /**
+     * 参与人数
+     */
     private Integer person_count;
+    
+    /**
+     * 教室容量
+     */
+    private Integer capacity;
+    
+    /**
+     * 使用日期(格式：yyyy-MM-dd)
+     */
+    private String date;
+    
+    /**
+     * 周数
+     */
+    private Integer week;
+    
+    /**
+     * 星期
+     */
+    private String day_of_week;
+    
+    /**
+     * 选择节次
+     */
+    private String period;
+    
+    /**
+     * 所选教室编号
+     */
+    private String room_num;
 
-    public String getUser_account() {
-        return user_account;
-    }
-
-    public void setUser_account(String user_account) {
-        this.user_account = user_account;
-    }
-
-    public String getUser_name() {
-        return user_name;
-    }
-
-    public void setUser_name(String user_name) {
-        this.user_name = user_name;
-    }
-
-    public String[] getRes_id() {
-        return res_id;
-    }
-
-    public void setRes_id(String[] res_id) {
-        this.res_id = res_id;
-    }
-
-    public String getPurpose() {
-        return purpose;
-    }
-
-    public void setPurpose(String purpose) {
-        this.purpose = purpose;
-    }
-
-    public Integer getPerson_count() {
-        return person_count;
-    }
-
-    public void setPerson_count(Integer person_count) {
-        this.person_count = person_count;
-    }
+    private String[] res_id;
 }

@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.util.Date;
 
-@TableName("apply_info")
+@TableName("apply_id")
 public class Apply_info {
 
     //申请编号
