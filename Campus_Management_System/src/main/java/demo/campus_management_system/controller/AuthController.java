@@ -17,7 +17,6 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-
     /**
      * 用户登录
      * @param loginRequest 登录请求数据
