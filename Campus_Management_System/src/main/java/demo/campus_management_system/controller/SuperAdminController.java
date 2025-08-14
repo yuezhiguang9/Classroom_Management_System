@@ -1,7 +1,6 @@
 package demo.campus_management_system.controller;
 
 
-import demo.campus_management_system.dao.dao_interface.SuperAdminMapper;
 import demo.campus_management_system.entity.DTO.ListLogsDTO;
 import demo.campus_management_system.entity.DTO.UpdateUsersDTO;
 import demo.campus_management_system.service.impl.SuperAdminImpl;
@@ -19,8 +18,6 @@ public class SuperAdminController {
     @Autowired
     private SuperAdminImpl superAdminImpl;
 
-    @Autowired
-    private SuperAdminMapper superAdminMapper;
 
     //更新用户数据
     @PostMapping("updateUsers")
@@ -37,9 +34,8 @@ public class SuperAdminController {
             if (account == null || "error".equals(account)) {
                 return ResultDTO.fail(401, "未登录或Token失效");
             }
-            superAdminImpl.updateUsers(token, updateUsersDTO);
-            return ResultDTO.success(true);
 
+            return superAdminImpl.updateUsers(token, updateUsersDTO);
 
         } catch (Exception e) {
             System.out.println("e=" + e);
@@ -61,17 +57,6 @@ public class SuperAdminController {
             @RequestParam(defaultValue = "1") Integer page,  //页码
             @RequestParam(defaultValue = "10") Integer size)  //每页条数
     {
-
-        System.out.println("apply_status=" + apply_status + "\n");
-        System.out.println("college_id=" + college_id + "\n");
-        System.out.println("building_id=" + building_id + "\n");
-        System.out.println("user_name=" + user_name + "\n");
-        System.out.println("date_start=" + date_start + "\n");
-        System.out.println("date_end=" + date_end + "\n");
-        System.out.println("page=" + page + "\n");
-        System.out.println("size=" + size + "\n");
-
-
         List<ListLogsDTO> result = new ArrayList<>();
         //jwt认证
         if (JwtUtil.getUserAccountToken(token).equals("error")) {
