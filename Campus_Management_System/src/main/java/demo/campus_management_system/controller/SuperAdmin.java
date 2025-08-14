@@ -1,7 +1,6 @@
 package demo.campus_management_system.controller;
 
 import demo.campus_management_system.entity.DTO.*;
-import demo.campus_management_system.entity.VO.ListLogsVO;
 import demo.campus_management_system.entity.VO.UserListVO;
 import demo.campus_management_system.service.impl.SuperAdminImpl;
 import demo.campus_management_system.util.JwtUtil;
