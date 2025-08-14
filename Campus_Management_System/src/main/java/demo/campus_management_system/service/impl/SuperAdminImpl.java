@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> implements SuperAdmin {
@@ -38,6 +39,10 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
         if (isSuperAdmin == null || !isSuperAdmin) {
             return ResultDTO.fail(401, "没有权限");
         } else {
+            if (updateUsersDTO.getUser_type() == null || Objects.equals(updateUsersDTO.getUser_type(), "")) {
+                return ResultDTO.fail(404, "没有选择用户类型或者用户类型错误");
+            }
+
             switch (updateUsersDTO.getUser_type()) {
                 case "user":
                     if (superAdminMapper.editUsers(updateUsersDTO)) {
@@ -58,7 +63,7 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
                         return ResultDTO.fail(404, "修改失败");
                     }
                 default:
-                    return ResultDTO.fail(404, "没有选择用户类型");
+                    return ResultDTO.fail(404, "没有选择用户类型或者用户类型错误");
             }
         }
     }
