@@ -16,7 +16,7 @@ public class UserListVO {
     /**
      * 角色
      */
-    private String user_type;
+    private String userType;
     
     /**
      * 所属学院
@@ -26,10 +26,10 @@ public class UserListVO {
     /**
      * 学号/工号
      */
-    private String user_account;
+    private String userAccount;
     
     /**
      * 最后登录时间
      */
-    private String last_login;
+    private String lastLogin;
 }

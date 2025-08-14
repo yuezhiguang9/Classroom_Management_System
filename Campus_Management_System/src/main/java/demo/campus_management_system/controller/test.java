@@ -1,7 +1,6 @@
 package demo.campus_management_system.controller;
 
 import demo.campus_management_system.dao.dao_interface.SuperAdminMapper;
-import demo.campus_management_system.entity.DTO.UpdateUsersDTO;
 import demo.campus_management_system.entity.Users;
 import demo.campus_management_system.service.service_interface.UserService;
 import demo.campus_management_system.util.JwtUtil;

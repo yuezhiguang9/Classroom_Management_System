@@ -2,7 +2,8 @@ package demo.campus_management_system.controller;
 
 
 import demo.campus_management_system.entity.DTO.ListLogsDTO;
-import demo.campus_management_system.entity.DTO.UpdateUsersDTO;
+import demo.campus_management_system.entity.DTO.UserListQueryDTO;
+import demo.campus_management_system.entity.VO.UserListVO;
 import demo.campus_management_system.service.impl.SuperAdminImpl;
 import demo.campus_management_system.util.JwtUtil;
 import demo.campus_management_system.util.ResultDTO;
@@ -19,30 +20,32 @@ public class SuperAdminController {
     private SuperAdminImpl superAdminImpl;
 
 
-    //更新用户数据
-    @PostMapping("updateUsers")
-    public ResultDTO<Boolean> updateUsers(@RequestHeader(value = "Authorization") String token, @RequestBody UpdateUsersDTO updateUsersDTO) {
-        try {
+    @GetMapping("/listUsers")
+    public ResultDTO<List<UserListVO>> listUsers(
+            @RequestHeader(value = "Authorization") String token,
+            @RequestParam(required = false) String user_type,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) String college_id,
+            @RequestParam(required = false) String user_name,
+            @RequestParam(required = false) String user_id) {
 
-            //打印测试
-//            System.out.println(JwtUtil.getUserAccountToken(token) + "----" + JwtUtil.getUserPasswordToken(token));
-//            System.out.println("usersDTO=" + "\n" + updateUsersDTO.getTotal());
-            String account = JwtUtil.getUserAccountToken(token);
-//            System.out.println("account=" + account + "---" + "password=" + password);
-
-            //先判断token正确性
-            if (account == null || "error".equals(account)) {
-                return ResultDTO.fail(401, "未登录或Token失效");
-            }
-
-            return superAdminImpl.updateUsers(token, updateUsersDTO);
-
-        } catch (Exception e) {
-            System.out.println("e=" + e);
-            return ResultDTO.fail(500, e.toString());
+        // JWT认证 - 去掉Bearer前缀
+        String actualToken = JwtUtil.extractToken(token);
+        if (JwtUtil.getUserAccountToken(actualToken).equals("error")) {
+            return ResultDTO.fail(401, "未登录或Token失效");
         }
-    }
 
+        UserListQueryDTO queryDTO = new UserListQueryDTO();
+        queryDTO.setUser_type(user_type);
+        queryDTO.setPage(page);
+        queryDTO.setSize(size);
+        queryDTO.setCollege_id(college_id);
+        queryDTO.setUser_name(user_name);
+        queryDTO.setUser_id(user_id);
+
+        return superAdminImpl.listUsers(queryDTO);
+    }
 
     //日志显示
     @GetMapping("listLogs")

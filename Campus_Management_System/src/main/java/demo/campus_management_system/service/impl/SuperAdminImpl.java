@@ -5,9 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import demo.campus_management_system.dao.dao_interface.SuperAdminMapper;
 import demo.campus_management_system.entity.DTO.ListLogsDTO;
-import demo.campus_management_system.entity.DTO.UpdateUsersDTO;
 import demo.campus_management_system.entity.DTO.UserListQueryDTO;
-import demo.campus_management_system.entity.DTO.UserOperationDTO;
 import demo.campus_management_system.entity.Super_admin;
 import demo.campus_management_system.entity.VO.ListLogsVO;
 import demo.campus_management_system.entity.VO.UserListVO;
@@ -57,42 +55,6 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
         } catch (Exception e) {
             e.printStackTrace();
             return ResultDTO.fail(500, "服务器内部错误");
-        }
-    }
-    //编辑用户
-    public ResultDTO<Boolean> updateUsers(String token, UpdateUsersDTO updateUsersDTO) {
-
-        //从token中获取账号密码
-        String account = JwtUtil.getUserAccountToken(token);
-        String password = JwtUtil.getUserPasswordToken(token);
-
-        //超级管理员才能编辑用户，所以先判断是不是超级管理员
-        Boolean isSuperAdmin = superAdminMapper.selectSuperAdmin(account, password);
-        if (isSuperAdmin == null || !isSuperAdmin) {
-            return ResultDTO.fail(401, "没有权限");
-        } else {
-            switch (updateUsersDTO.getUser_type()) {
-                case "user":
-                    if (superAdminMapper.editUsers(updateUsersDTO)) {
-                        return ResultDTO.success(true);
-                    } else {
-                        return ResultDTO.fail(404, "修改失败");
-                    }
-                case "teach_sec":
-                    if (superAdminMapper.editTeach(updateUsersDTO)) {
-                        return ResultDTO.success(true);
-                    } else {
-                        return ResultDTO.fail(404, "修改失败");
-                    }
-                case "class_mgr":
-                    if (superAdminMapper.editClassMgr(updateUsersDTO)) {
-                        return ResultDTO.success(true);
-                    } else {
-                        return ResultDTO.fail(404, "修改失败");
-                    }
-                default:
-                    return ResultDTO.fail(404, "没有选择用户类型");
-            }
         }
     }
 

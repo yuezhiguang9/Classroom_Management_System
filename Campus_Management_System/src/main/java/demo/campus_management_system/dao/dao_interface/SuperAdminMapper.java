@@ -2,7 +2,6 @@ package demo.campus_management_system.dao.dao_interface;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import demo.campus_management_system.entity.DTO.UpdateUsersDTO;
 import demo.campus_management_system.entity.Super_admin;
 import demo.campus_management_system.entity.VO.ListLogsVO;
 import demo.campus_management_system.entity.VO.UserListVO;
@@ -36,14 +35,6 @@ public interface SuperAdminMapper extends BaseMapper<Super_admin> {
     );
 
 
-    //测试测试RequestBody
-    Boolean selectSuperAdmin(String account, String password);
-
-    Boolean editUsers(UpdateUsersDTO updateUsersDTO);
-
-    Boolean editTeach(UpdateUsersDTO updateUsersDTO);
-
-    Boolean editClassMgr(UpdateUsersDTO updateUsersDTO);
 
     // ============ 用户管理相关 ============
     
