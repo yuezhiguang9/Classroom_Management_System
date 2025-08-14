@@ -67,4 +67,6 @@ public class ClassroomApplyDTO {
      * 所选教室编号
      */
     private String room_num;
+
+    private String[] res_id;
 }
