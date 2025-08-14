@@ -67,7 +67,8 @@ public class ClassroomManagerServiceImpl extends ServiceImpl<ClassroomManagerMap
             return ResultDTO.fail(500, "服务器内部错误");
         }
     }
-    
+
+
     @Override
     public ResultDTO<Boolean> batchUpdateStatus(String token, BatchUpdateStatusDTO updateDTO) {
         try {
