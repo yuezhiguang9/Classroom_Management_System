@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="demo.campus_management_system.dao.dao_interface.ClassroomManagerMapper">
+
+    <!-- 查询管辖教室列表(分页) -->
+    <select id="selectManagedClassrooms" resultType="demo.campus_management_system.entity.VO.ClassroomManageVO">
+        SELECT 
+            c.room_num,
+            c.room_capacity as capacity,
+            c.room_type,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 FROM classroom_resource cr 
+                    WHERE cr.room_num = c.room_num 
+                    AND cr.res_date = CURDATE() 
+                    AND cr.res_room_status = '已预订'
+                ) THEN '已占用'
+                ELSE '可用'
+            END as room_status
+        FROM classroom c
+        LEFT JOIN classroom_manager cm ON c.building_id = cm.building_id
+        WHERE cm.mgr_account = #{mgrAccount}
+        <if test="roomNum != null and roomNum != ''">
+            AND c.room_num LIKE CONCAT(#{roomNum}, '%')
+        </if>
+        <if test="capacity != null">
+            AND c.room_capacity &gt;= #{capacity}
+        </if>
+        <if test="roomType != null and roomType != ''">
+            AND c.room_type = #{roomType}
+        </if>
+        <if test="roomStatus != null and roomStatus != ''">
+            <choose>
+                <when test="roomStatus == '可用'">
+                    AND NOT EXISTS (
+                        SELECT 1 FROM classroom_resource cr 
+                        WHERE cr.room_num = c.room_num 
+                        AND cr.res_date = CURDATE() 
+                        AND cr.res_room_status = '已预订'
+                    )
+                </when>
+                <when test="roomStatus == '已占用'">
+                    AND EXISTS (
+                        SELECT 1 FROM classroom_resource cr 
+                        WHERE cr.room_num = c.room_num 
+                        AND cr.res_date = CURDATE() 
+                        AND cr.res_room_status = '已预订'
+                    )
+                </when>
+                <when test="roomStatus == '维修中'">
+                    AND 1 = 0  -- 暂时没有维修状态的逻辑，返回空结果
+                </when>
+            </choose>
+        </if>
+        ORDER BY c.room_num
+    </select>
+
+    <!-- 统计今日可用教室数 -->
+    <select id="countTodayAvailableRooms" resultType="Integer">
+        SELECT COUNT(DISTINCT c.room_num)
+        FROM classroom c
+        LEFT JOIN classroom_manager cm ON c.building_id = cm.building_id
+        WHERE cm.mgr_account = #{mgrAccount}
+          AND NOT EXISTS (
+              SELECT 1 FROM classroom_resource cr 
+              WHERE cr.room_num = c.room_num 
+              AND cr.res_date = CURDATE() 
+              AND cr.res_room_status = '已预订'
+          )
+          -- 移除room_status检查，因为classroom表中没有此字段
+    </select>
+
+    <!-- 批量更新教室状态 -->
+    <update id="batchUpdateRoomStatus">
+        -- 暂时不支持更新教室状态，因为classroom表中没有room_status字段
+        -- 教室状态通过classroom_resource表动态计算
+        UPDATE classroom c
+        LEFT JOIN classroom_manager cm ON c.building_id = cm.building_id
+        SET c.room_capacity = c.room_capacity  -- 无实际更新，仅为语法正确
+        WHERE cm.mgr_account = #{mgrAccount}
+          AND c.room_num IN
+        <foreach collection="roomNums" item="roomNum" open="(" separator="," close=")">
+            #{roomNum}
+        </foreach>
+    </update>
+
+    <!-- 单个更新教室状态 -->
+    <update id="updateSingleRoomStatus">
+        -- 暂时不支持更新教室状态，因为classroom表中没有room_status字段
+        -- 教室状态通过classroom_resource表动态计算
+        UPDATE classroom c
+        LEFT JOIN classroom_manager cm ON c.building_id = cm.building_id
+        SET c.room_capacity = c.room_capacity  -- 无实际更新，仅为语法正确
+        WHERE cm.mgr_account = #{mgrAccount}
+          AND c.room_num = #{roomNum}
+    </update>
+
+    <!-- 查询教室审核情况(分页) -->
+    <select id="selectApplyInfoByManager" resultType="demo.campus_management_system.entity.VO.ApplyInfoManageVO">
+        SELECT 
+            ai.apply_id,
+            ts.sec_name,
+            CONCAT(b.building_name, '-', c.room_num) as classroom,
+            cr.res_date as date,
+            ai.apply_purpose as purpose
+        FROM apply_info ai
+        LEFT JOIN teach_secretary ts ON ai.sec_account = ts.sec_account
+        LEFT JOIN classroom_resource cr ON ai.apply_id = cr.apply_info_id
+        LEFT JOIN classroom c ON cr.room_num = c.room_num
+        LEFT JOIN building b ON c.building_id = b.building_id
+        LEFT JOIN classroom_manager cm ON c.building_id = cm.building_id
+        WHERE cm.mgr_account = #{mgrAccount}
+          AND ai.user_cancel = 0
+          AND ai.apply_status = '已批准'
+        <if test="applyStatus != null and applyStatus != ''">
+            <choose>
+                <when test="applyStatus == '已批准'">
+                    AND ai.apply_status = '已批准'
+                </when>
+                <when test="applyStatus == '已驳回'">
+                    AND ai.apply_status = '已拒绝'
+                </when>
+            </choose>
+        </if>
+        <if test="dateStart != null and dateStart != ''">
+            AND cr.res_date &gt;= #{dateStart}
+        </if>
+        <if test="dateEnd != null and dateEnd != ''">
+            AND cr.res_date &lt;= #{dateEnd}
+        </if>
+        ORDER BY cr.res_date DESC, ai.apply_book_time DESC
+    </select>
+
+    <!-- 统计管辖教室总数 -->
+    <select id="countManagedRooms" resultType="Integer">
+        SELECT COUNT(c.room_num)
+        FROM classroom c
+        LEFT JOIN classroom_manager cm ON c.building_id = cm.building_id
+        WHERE cm.mgr_account = #{mgrAccount}
+    </select>
+
+    <!-- 根据管理员账号获取管理的楼栋ID -->
+    <select id="getBuildingIdByManager" resultType="String">
+        SELECT building_id
+        FROM classroom_manager
+        WHERE mgr_account = #{mgrAccount}
+    </select>
+
+</mapper>
