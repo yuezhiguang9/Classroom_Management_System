@@ -2,6 +2,128 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="demo.campus_management_system.dao.dao_interface.SuperAdminMapper">
 
+    <!-- 1. 总用户数、教秘数、教室管理员数 -->
+    <select id="countTotalUsers" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM users
+    </select>
+
+    <select id="countTotalTeachSecs" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM teach_secretary
+    </select>
+
+    <select id="countTotalClassroomMgrs" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM classroom_manager
+    </select>
+
+    <!-- 2. 活跃用户数（近30天有登录记录的distinct用户） -->
+    <select id="countActiveUsers" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT user_account)
+        FROM login
+        WHERE login_time >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+    </select>
+
+    <!-- 3. 总预约数（apply_info表，支持日期筛选） -->
+    <select id="countTotalApplies" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM apply_info
+        <where>
+            <if test="dateStart != null and dateStart != ''">
+                AND apply_book_time >= STR_TO_DATE(#{dateStart}, '%Y-%m-%d')
+            </if>
+            <if test="dateEnd != null and dateEnd != ''">
+                AND apply_book_time &lt;= STR_TO_DATE(#{dateEnd}, '%Y-%m-%d')
+            </if>
+        </where>
+    </select>
+
+
+    <resultMap id="room_usage" type="demo.campus_management_system.entity.VO.RoomUsageVO">
+        <result property="building_name" column="building_name"/>
+        <result property="room_num" column="room_num"/>
+        <result property="userAccount" column="userAccount"/>
+    </resultMap>
+
+    <!-- 4. 经常使用的教室统计（按使用次数排序取前五-->
+    <select id="countFrequentlyUsedRooms"
+            resultMap="room_usage">
+        SELECT
+        b.building_name AS building_name,
+        cr.room_num AS room_num,
+        COUNT(*) AS userAccount
+        FROM apply_info ai
+        INNER JOIN classroom_resource cr ON ai.apply_id = cr.apply_info_id
+        INNER JOIN classroom c ON cr.room_num = c.room_num
+        INNER JOIN building b ON c.building_id = b.building_id
+        <where>
+            <if test="dateStart != null and dateStart != ''">
+                AND ai.apply_book_time >= STR_TO_DATE(#{dateStart}, '%Y-%m-%d')
+            </if>
+            <if test="dateEnd != null and dateEnd != ''">
+                AND ai.apply_book_time &lt;= STR_TO_DATE(#{dateEnd}, '%Y-%m-%d')
+            </if>
+        </where>
+        GROUP BY b.building_name,cr.room_num
+        ORDER BY COUNT(*) DESC
+        LIMIT 5
+    </select>
+
+
+    <resultMap id="roomtypeusage" type="demo.campus_management_system.entity.VO.RoomTypeUsageVO">
+        <result property="room_type" column="room_type"/>
+        <result property="user_count" column="user_count"/>
+    </resultMap>
+
+
+    <!-- 5. 经常使用的教室类型统计（按使用次数排序取前五） -->
+    <select id="countFrequentlyUsedRoomTypes"
+            resultMap="roomtypeusage">
+        SELECT
+        c.room_type AS room_type,
+        COUNT(*) AS user_count
+        FROM apply_info ai
+        INNER JOIN classroom_resource cr ON ai.apply_id = cr.apply_info_id
+        INNER JOIN classroom c ON cr.room_num = c.room_num
+        <where>
+            <if test="dateStart != null and dateStart != ''">
+                AND ai.apply_book_time >= STR_TO_DATE(#{dateStart}, '%Y-%m-%d')
+            </if>
+            <if test="dateEnd != null and dateEnd != ''">
+                AND ai.apply_book_time &lt;= STR_TO_DATE(#{dateEnd}, '%Y-%m-%d')
+            </if>
+        </where>
+        GROUP BY c.room_type
+        ORDER BY COUNT(*) DESC
+        LIMIT 5 -- 只取前五
+    </select>
+
+    <resultMap id="buildingUsage" type="demo.campus_management_system.entity.VO.BuildingUsageVO">
+        <result property="building_name" column="building_name"/>
+        <result property="apply_count" column="apply_count"/>
+    </resultMap>
+
+
+    <!-- 6. 当月每一栋楼预约数统计 -->
+    <select id="countMonthlyBuildingApplies"
+            resultMap="buildingUsage">
+        SELECT b.building_name AS building_name,
+               COUNT(*)        AS apply_count
+        FROM apply_info ai
+                 INNER JOIN classroom_resource cr ON ai.apply_id = cr.apply_info_id
+                 INNER JOIN classroom c ON cr.room_num = c.room_num
+                 INNER JOIN building b ON c.building_id = b.building_id
+        WHERE
+            -- 筛选当月数据
+            DATE_FORMAT(ai.apply_book_time, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
+        GROUP BY b.building_name
+        ORDER BY apply_count DESC
+    </select>
+</mapper><?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="demo.campus_management_system.dao.dao_interface.SuperAdminMapper">
+
     <!-- ============ 日志相关 ============ -->
 
     <!-- 全校今日待审核数 -->
