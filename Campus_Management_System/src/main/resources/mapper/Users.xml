@@ -78,7 +78,7 @@
 
     <update id="updateRes">
         update classroom_resource
-        set res_room_status = "已预订",
+        set res_room_status = "已预约",
             apply_info_id   = #{apply_id}
         where res_id = #{res_id}
     </update>
