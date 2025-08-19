@@ -12,7 +12,7 @@ import demo.campus_management_system.dao.dao_interface.ApplyInfo;
 import demo.campus_management_system.service.service_interface.UserService;
 import demo.campus_management_system.util.DataUtils;
 import demo.campus_management_system.util.JwtUtil;
-import demo.campus_management_system.util.ResultDTO;
+import demo.campus_management_system.entity.DTO.ResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cn.hutool.core.lang.Snowflake;

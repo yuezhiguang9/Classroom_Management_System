@@ -1,6 +1,5 @@
 package demo.campus_management_system.service.impl;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -265,8 +264,10 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
             // 获取全校本周驳回数
             listLogsDTO.setWeek_rejected(WeekRejected);
 
+
             // 获取需要分页内容
             listLogsDTO.setRecordsPage(ListLogsVo);
+
 
             // 把数据包装
             result.add(listLogsDTO);

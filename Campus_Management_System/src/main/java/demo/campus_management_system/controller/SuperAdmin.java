@@ -4,7 +4,7 @@ import demo.campus_management_system.entity.DTO.*;
 import demo.campus_management_system.entity.VO.UserListVO;
 import demo.campus_management_system.service.impl.SuperAdminImpl;
 import demo.campus_management_system.util.JwtUtil;
-import demo.campus_management_system.util.ResultDTO;
+import demo.campus_management_system.entity.DTO.ResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,13 +28,13 @@ public class SuperAdmin {
             @RequestParam(required = false) String college_id,
             @RequestParam(required = false) String user_name,
             @RequestParam(required = false) String user_id) {
-        
+
         // JWT认证 - 去掉Bearer前缀
         String actualToken = JwtUtil.extractToken(token);
         if (JwtUtil.getUserAccountToken(actualToken).equals("error")) {
             return ResultDTO.fail(401, "未登录或Token失效");
         }
-        
+
         UserListQueryDTO queryDTO = new UserListQueryDTO();
         queryDTO.setUser_type(user_type);
         queryDTO.setPage(page);
@@ -42,7 +42,7 @@ public class SuperAdmin {
         queryDTO.setCollege_id(college_id);
         queryDTO.setUser_name(user_name);
         queryDTO.setUser_id(user_id);
-        
+
         return superAdminImpl.listUsers(queryDTO);
     }
 }

@@ -7,7 +7,7 @@ import demo.campus_management_system.entity.DTO.SelectClassroomDTO;
 import demo.campus_management_system.entity.DTO.myReservationsDTO;
 import demo.campus_management_system.service.impl.UserServiceImpl;
 import demo.campus_management_system.util.JwtUtil;
-import demo.campus_management_system.util.ResultDTO;
+import demo.campus_management_system.entity.DTO.ResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

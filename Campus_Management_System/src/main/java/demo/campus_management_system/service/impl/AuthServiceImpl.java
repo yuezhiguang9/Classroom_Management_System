@@ -6,7 +6,7 @@ import demo.campus_management_system.entity.DTO.LoginRequestDTO;
 import demo.campus_management_system.entity.DTO.LoginResponseDTO;
 import demo.campus_management_system.service.service_interface.AuthService;
 import demo.campus_management_system.util.JwtUtil;
-import demo.campus_management_system.util.ResultDTO;
+import demo.campus_management_system.entity.DTO.ResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,20 +18,20 @@ import java.util.UUID;
  */
 @Service
 public class AuthServiceImpl implements AuthService {
-    
+
     @Autowired
     private AuthMapper authMapper;
-    
+
     @Override
     public ResultDTO<LoginResponseDTO> login(LoginRequestDTO loginRequest) {
         try {
             String userType = loginRequest.getUser_type();
             String account = loginRequest.getAccount();
             String password = loginRequest.getPassword();
-            
+
             // 根据用户类型查询对应表
             LoginResponseDTO response = new LoginResponseDTO();
-            
+
             switch (userType) {
                 case "user":
                     Users user = authMapper.selectUserByAccount(account);
@@ -43,7 +43,7 @@ public class AuthServiceImpl implements AuthService {
                     response.setUser_type("user");
                     response.setCollege(user.getCollegeId()); // 需要关联查询学院名称
                     break;
-                    
+
                 case "teach_sec":
                     Teach_Secretary teachSec = authMapper.selectTeachSecByAccount(account);
                     if (teachSec == null || !teachSec.getSecPassword().equals(password)) {
@@ -54,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
                     response.setUser_type("teach_sec");
                     response.setCollege(teachSec.getCollegeId()); // 需要关联查询学院名称
                     break;
-                    
+
                 case "class_mgr":
                     Classroom_manager manager = authMapper.selectClassroomManagerByAccount(account);
                     if (manager == null || !manager.getMgrPassword().equals(password)) {
@@ -65,7 +65,7 @@ public class AuthServiceImpl implements AuthService {
                     response.setUser_type("class_mgr");
                     response.setCollege(""); // 教室管理员不关联学院
                     break;
-                    
+
                 case "super_admin":
                     Super_admin admin = authMapper.selectSuperAdminByAccount(account);
                     if (admin == null || !admin.getPassword().equals(password)) {
@@ -76,11 +76,11 @@ public class AuthServiceImpl implements AuthService {
                     response.setUser_type("super_admin");
                     response.setCollege(""); // 超级管理员不关联学院
                     break;
-                    
+
                 default:
                     return ResultDTO.fail(400, "无效的用户类型");
             }
-            
+
             // 生成JWT Token
             String token = JwtUtil.createToken(account, password);
             response.setToken(token);
@@ -94,9 +94,9 @@ public class AuthServiceImpl implements AuthService {
                 System.out.println(loginId);
                 authMapper.insertLoginLog(account, loginId);
             }
-            
+
             return ResultDTO.success(response, "登录成功");
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             return ResultDTO.fail(500, "服务器内部错误");
