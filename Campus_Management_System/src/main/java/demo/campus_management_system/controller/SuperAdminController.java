@@ -38,7 +38,7 @@ public class SuperAdminController {
                 return ResultDTO.fail(401, "未登录或Token失效");
             }
             superAdminImpl.updateUsers(token, updateUsersDTO);
-            return ResultDTO.success(true);
+            return ResultDTO.success(true, "查询成功");
 
 
         } catch (Exception e) {
