@@ -1,4 +1,4 @@
-package demo.campus_management_system.util;
+package demo.campus_management_system.entity.DTO;
 
 
 public class ResultDTO<T> {
