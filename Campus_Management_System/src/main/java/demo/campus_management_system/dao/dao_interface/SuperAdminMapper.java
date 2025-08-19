@@ -95,17 +95,22 @@ public interface SuperAdminMapper extends BaseMapper<Super_admin> {
     // 3. 统计总预约数
     Integer countTotalApplies(@Param("dateStart") String dateStart, @Param("dateEnd") String dateEnd);
 
-    // 4. 统计经常使用的教室（前五）
+
+    //4. 统计本月于上月预约总数的差
+    Integer calculateMomApptComparison();
+
+
+    // 5. 统计经常使用的教室（前五）
     List<RoomUsageVO> countFrequentlyUsedRooms(
             @Param("dateStart") String dateStart,
             @Param("dateEnd") String dateEnd);
 
-    // 5. 统计经常使用的教室类型（前五）
+    // 6. 统计经常使用的教室类型（前五）
     List<RoomTypeUsageVO> countFrequentlyUsedRoomTypes(
             @Param("dateStart") String dateStart,
             @Param("dateEnd") String dateEnd);
 
-    // 6. 统计当月每栋楼的预约数
+    // 7. 统计当月每栋楼的预约数
     List<BuildingUsageVO> countMonthlyBuildingApplies();
 
 }

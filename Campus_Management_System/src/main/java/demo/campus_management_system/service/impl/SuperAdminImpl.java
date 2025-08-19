@@ -273,15 +273,16 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
                 return ResultDTO.fail(401, "无权限访问，仅超级管理员可查看");
             }
 
-            // 3. 基础统计数据（所有类型均返回）
+            // 2. 基础统计数据（所有类型均返回）
             AnalyzeDataDTO baseStats = new AnalyzeDataDTO();
             baseStats.setTotal_users(superAdminMapper.countTotalUsers());
             baseStats.setTotal_teach_secs(superAdminMapper.countTotalTeachSecs());
             baseStats.setTotal_classroom_mgrs(superAdminMapper.countTotalClassroomMgrs());
             baseStats.setActive_users(superAdminMapper.countActiveUsers());
             baseStats.setTotal_applies(superAdminMapper.countTotalApplies(dateStart, dateEnd));
+            baseStats.setMom_appt_comparison(superAdminMapper.calculateMomApptComparison());
 
-            // 2. 查询经常使用的教室（前5）
+            // 3. 查询经常使用的教室（前5）
             List<RoomUsageVO> roomUsageVO;
             roomUsageVO = superAdminMapper.countFrequentlyUsedRooms(dateStart, dateEnd);
             baseStats.setActive_classroom(roomUsageVO);
@@ -293,7 +294,7 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
             baseStats.setActive_classroom_type(roomTypeUsageVOS);
 
 
-            // 3. 统计当月每栋楼预约数
+            // 5. 统计当月每栋楼预约数
             List<BuildingUsageVO> buildingUsageVOS;
             buildingUsageVOS = superAdminMapper.countMonthlyBuildingApplies();
             baseStats.setTotal_of_building(buildingUsageVOS);
