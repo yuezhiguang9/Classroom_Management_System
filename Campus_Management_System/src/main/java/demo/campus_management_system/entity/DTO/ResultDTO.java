@@ -10,7 +10,7 @@ public class ResultDTO<T> {
     private T data;
 
     // 成功响应（带数据）
-    public static <T> ResultDTO<T> success(T data) {
+    public static <T> ResultDTO<T> success(T data, String 查询成功) {
         ResultDTO<T> result = new ResultDTO<>();
         result.setCode(200);
         result.setMsg("success");
