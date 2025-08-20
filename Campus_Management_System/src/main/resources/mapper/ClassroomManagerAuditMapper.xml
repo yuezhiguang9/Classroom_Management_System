@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="demo.campus_management_system.dao.dao_interface.ClassroomManagerAuditMapper">
+
+    <!-- 验证教室管理员身份 -->
+    <select id="verifyClassroomManager" resultType="java.lang.Boolean">
+        SELECT COUNT(*) > 0
+        FROM classroom_manager
+        WHERE mgr_account = #{account} AND mgr_password = #{password}
+    </select>
+
+    <!-- 统计管辖教室总数 -->
+    <select id="countManagedRooms" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM classroom c
+                 JOIN building b ON c.building_id = b.building_id
+                 JOIN classroom_manager cm ON b.building_id = cm.building_id
+        WHERE cm.mgr_account = #{mgrAccount}
+    </select>
+
+    <!-- 统计符合条件的申请总数 -->
+    <select id="countQualifiedApplies" resultType="java.lang.Long">
+        SELECT COUNT(DISTINCT ai.apply_id)
+        FROM apply_info ai
+        JOIN classroom_resource cr ON ai.apply_id = cr.apply_info_id
+        JOIN classroom c ON cr.room_num = c.room_num
+        JOIN building b ON c.building_id = b.building_id
+        JOIN classroom_manager cm ON b.building_id = cm.building_id
+        WHERE cm.mgr_account = #{query.mgr_account}
+        AND ai.user_cancel = 0
+        <if test="query.apply_status != null and query.apply_status != ''">
+            AND ai.apply_status = #{query.apply_status}
+        </if>
+        <if test="query.date_start != null and query.date_start != ''">
+            AND cr.res_date >= STR_TO_DATE(#{query.date_start}, '%Y-%m-%d')
+        </if>
+        <if test="query.date_end != null and query.date_end != ''">
+            AND cr.res_date &lt;= STR_TO_DATE(#{query.date_end}, '%Y-%m-%d')
+        </if>
+    </select>
+
+    <!-- 分页查询审核记录 -->
+    <select id="selectAuditRecords" resultType="demo.campus_management_system.entity.VO.ClassroomAuditRecordVO">
+        SELECT
+        u.user_name,
+        ts.sec_name,
+        CONCAT(b.building_name, c.room_num) AS classroom,
+        CONCAT(cr.res_week, ' ',  cr.res_day_of_week, ' ', cr.res_period) AS date,
+        ai.apply_purpose AS purpose
+        FROM apply_info ai
+        JOIN classroom_resource cr ON ai.apply_id = cr.apply_info_id
+        JOIN classroom c ON cr.room_num = c.room_num
+        JOIN building b ON c.building_id = b.building_id
+        JOIN classroom_manager cm ON b.building_id = cm.building_id
+        JOIN users u ON ai.user_account = u.user_account
+        JOIN teach_secretary ts ON ai.sec_account = ts.sec_account
+        WHERE cm.mgr_account = #{query.mgr_account}
+        AND ai.user_cancel = 0
+        <if test="query.apply_status != null and query.apply_status != ''">
+            AND ai.apply_status = #{query.apply_status}
+        </if>
+        <if test="query.date_start != null and query.date_start != ''">
+            AND cr.res_date >= STR_TO_DATE(#{query.date_start}, '%Y-%m-%d')
+        </if>
+        <if test="query.date_end != null and query.date_end != ''">
+            AND cr.res_date &lt;= STR_TO_DATE(#{query.date_end}, '%Y-%m-%d')
+        </if>
+        ORDER BY ai.apply_book_time DESC
+    </select>
+
+</mapper>

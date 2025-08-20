@@ -35,6 +35,9 @@ public class SuperAdminController {
             if (account == null || "error".equals(account)) {
                 return ResultDTO.fail(401, "未登录或Token失效");
             }
+            superAdminImpl.updateUsers(token, updateUsersDTO);
+            return ResultDTO.success(true, "查询成功");
+
 
             return superAdminImpl.updateUsers(token, updateUsersDTO);
 

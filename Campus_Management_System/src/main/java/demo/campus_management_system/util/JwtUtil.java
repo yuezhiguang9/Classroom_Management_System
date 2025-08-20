@@ -2,10 +2,12 @@ package demo.campus_management_system.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
 
+@Component
 public class JwtUtil {
     //安全密钥
     private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS512);
@@ -66,6 +68,17 @@ public class JwtUtil {
             return "error";
         }
     }
+
+    // 在 JwtUtil.java 中添加
+    public static String getUserTypeFromToken(String token) {
+        try {
+            // 假设我们在创建 token 时添加了用户类型信息
+            return parseToken(token).getBody().get("user_type", String.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse user type from token", e);
+        }
+    }
+
 
 
 }

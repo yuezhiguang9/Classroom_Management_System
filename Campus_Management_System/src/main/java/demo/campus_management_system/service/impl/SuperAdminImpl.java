@@ -83,19 +83,19 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
             switch (updateUsersDTO.getUser_type()) {
                 case "user":
                     if (superAdminMapper.editUsers(updateUsersDTO)) {
-                        return ResultDTO.success(true);
+                        return ResultDTO.success(true, "查询成功");
                     } else {
                         return ResultDTO.fail(404, "修改失败");
                     }
                 case "teach_sec":
                     if (superAdminMapper.editTeach(updateUsersDTO)) {
-                        return ResultDTO.success(true);
+                        return ResultDTO.success(true, "查询成功");
                     } else {
                         return ResultDTO.fail(404, "修改失败");
                     }
                 case "class_mgr":
                     if (superAdminMapper.editClassMgr(updateUsersDTO)) {
-                        return ResultDTO.success(true);
+                        return ResultDTO.success(true, "查询成功");
                     } else {
                         return ResultDTO.fail(404, "修改失败");
                     }
@@ -124,7 +124,7 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
                 // 删除普通用户表（users）
                 int userDelete = superAdminMapper.deleteUser(deleteUsersDTO.getAccount());
                 if (userDelete > 0) {
-                    return ResultDTO.success(true);
+                    return ResultDTO.success(true, "查询成功");
                 } else {
                     return ResultDTO.fail(404, "普通用户不存在或删除失败");
                 }
@@ -132,7 +132,7 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
                 // 删除教学秘书表（teach_secretary）
                 int teachDelete = superAdminMapper.deleteTeachSec(deleteUsersDTO.getAccount());
                 if (teachDelete > 0) {
-                    return ResultDTO.success(true);
+                    return ResultDTO.success(true, "查询成功");
                 } else {
                     return ResultDTO.fail(404, "教学秘书不存在或删除失败");
                 }
@@ -140,7 +140,7 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
                 // 删除教室管理员表（classroom_manager）
                 int mgrDelete = superAdminMapper.deleteClassMgr(deleteUsersDTO.getAccount());
                 if (mgrDelete > 0) {
-                    return ResultDTO.success(true);
+                    return ResultDTO.success(true, "查询成功");
                 } else {
                     return ResultDTO.fail(404, "教室管理员不存在或删除失败");
                 }
@@ -206,7 +206,7 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
 
         // 5. 返回结果
         if (rowsAffected > 0) {
-            return ResultDTO.success(true);
+            return ResultDTO.success(true, "查询成功");
         } else {
             return ResultDTO.fail(500, "新增用户失败");
         }
@@ -310,15 +310,16 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
                 return ResultDTO.fail(401, "无权限访问，仅超级管理员可查看");
             }
 
-            // 3. 基础统计数据（所有类型均返回）
+            // 2. 基础统计数据（所有类型均返回）
             AnalyzeDataDTO baseStats = new AnalyzeDataDTO();
             baseStats.setTotal_users(superAdminMapper.countTotalUsers());
             baseStats.setTotal_teach_secs(superAdminMapper.countTotalTeachSecs());
             baseStats.setTotal_classroom_mgrs(superAdminMapper.countTotalClassroomMgrs());
             baseStats.setActive_users(superAdminMapper.countActiveUsers());
             baseStats.setTotal_applies(superAdminMapper.countTotalApplies(dateStart, dateEnd));
+            baseStats.setMom_appt_comparison(superAdminMapper.calculateMomApptComparison());
 
-            // 2. 查询经常使用的教室（前5）
+            // 3. 查询经常使用的教室（前5）
             List<RoomUsageVO> roomUsageVO;
             roomUsageVO = superAdminMapper.countFrequentlyUsedRooms(dateStart, dateEnd);
             baseStats.setActive_classroom(roomUsageVO);
@@ -328,12 +329,21 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
             roomTypeUsageVOS = superAdminMapper.countFrequentlyUsedRoomTypes(dateStart, dateEnd);
             baseStats.setActive_classroom_type(roomTypeUsageVOS);
 
-            // 3. 统计当月每栋楼预约数
+
+
+            // 5. 统计当月每栋楼预约数
+
+            
+  // 3. 统计当月每栋楼预约数
+
             List<BuildingUsageVO> buildingUsageVOS;
             buildingUsageVOS = superAdminMapper.countMonthlyBuildingApplies();
             baseStats.setTotal_of_building(buildingUsageVOS);
 
-            return ResultDTO.success(Collections.singletonList(baseStats));
+
+
+            return ResultDTO.success(Collections.singletonList(baseStats), "查询成功");
+
         } catch (Exception e) {
             e.printStackTrace();
             return ResultDTO.fail(500, "数据统计失败：" + e.getMessage());
