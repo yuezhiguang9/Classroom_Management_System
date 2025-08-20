@@ -49,7 +49,8 @@
         classroom_resource.res_date,
         classroom_resource.res_week,
         classroom_resource.res_day_of_week,
-        GROUP_CONCAT(classroom_resource.res_period ORDER BY classroom_resource.res_period) AS res_period,
+        GROUP_CONCAT(classroom_resource.res_period
+        ORDER BY CAST(SUBSTRING(classroom_resource.res_period, 3) AS UNSIGNED)) AS res_period,
         apply_info.apply_purpose,
         apply_info.apply_person_count,
         apply_info.apply_status

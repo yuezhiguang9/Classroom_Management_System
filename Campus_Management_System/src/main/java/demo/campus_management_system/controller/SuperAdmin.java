@@ -1,14 +1,12 @@
 package demo.campus_management_system.controller;
 
 import demo.campus_management_system.entity.DTO.*;
-import demo.campus_management_system.entity.VO.UserListVO;
 import demo.campus_management_system.service.impl.SuperAdminImpl;
 import demo.campus_management_system.util.JwtUtil;
 import demo.campus_management_system.entity.DTO.ResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/admin")
@@ -20,7 +18,7 @@ public class SuperAdmin {
      * 用户列表
      */
     @GetMapping("/listUsers")
-    public ResultDTO<List<UserListVO>> listUsers(
+    public ResultDTO<UserListDTO> listUsers(
             @RequestHeader(value = "Authorization") String token,
             @RequestParam(required = false) String user_type,
             @RequestParam(defaultValue = "1") Integer page,

@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="demo.campus_management_system.dao.dao_interface.SuperAdminMapper">
     <!-- 1. 总用户数、教秘数、教室管理员数 -->
-    <select id="countTotalUsers" resultType="java.lang.Integer">
-        SELECT COUNT(*)
-        FROM users
-    </select>
+    <!--    <select id="countTotalUsers" resultType="java.lang.Integer">-->
+    <!--        SELECT COUNT(*)-->
+    <!--        FROM users-->
+    <!--    </select>-->
 
     <select id="countTotalTeachSecs" resultType="java.lang.Integer">
         SELECT COUNT(*)
@@ -214,10 +214,20 @@
             LIMIT 1
     </select>
 
+
     <!-- ============ 用户管理相关 ============ -->
 
+    <resultMap id="UserList" type="demo.campus_management_system.entity.VO.UserListVO">
+        <result property="name" column="name"/>
+        <result property="user_type" column="user_type"/>
+        <result property="college" column="college"/>
+        <result property="user_account" column="user_account"/>
+        <result property="last_login" column="last_login"/>
+    </resultMap>
+
+
     <!-- 查询用户列表(分页) -->
-    <select id="selectUserList" resultType="demo.campus_management_system.entity.VO.UserListVO">
+    <select id="selectUserList" resultMap="UserList">
         SELECT * FROM (
         SELECT
         user_name as name,
@@ -310,12 +320,18 @@
 
     <!-- 统计总用户数 -->
     <select id="countTotalUsers" resultType="Integer">
-        SELECT (
-                   (SELECT COUNT(*) FROM users) +
-                   (SELECT COUNT(*) FROM teach_secretary) +
-                   (SELECT COUNT(*) FROM classroom_manager) +
-                   (SELECT COUNT(*) FROM super_admin)
-                   ) as total_users
+        SELECT SUM(count1) as total_users
+        FROM (SELECT COUNT(*) as count1
+              FROM users
+              UNION ALL
+              SELECT COUNT(sec_account)
+              FROM teach_secretary
+              UNION ALL
+              SELECT COUNT(mgr_account)
+              FROM classroom_manager
+              UNION ALL
+              SELECT COUNT(account)
+              FROM super_admin) as total_users
     </select>
 
     <!-- 统计活跃用户数(近30天有登录记录) -->

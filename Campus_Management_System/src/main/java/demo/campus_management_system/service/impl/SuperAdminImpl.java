@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+
 import java.util.*;
 
 @Service
@@ -33,7 +33,7 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
     /**
      * 用户列表查询
      */
-    public ResultDTO<List<UserListVO>> listUsers(UserListQueryDTO queryDTO) {
+    public ResultDTO<UserListDTO> listUsers(UserListQueryDTO queryDTO) {
         try {
             // 创建分页对象
             Page<UserListVO> page = new Page<>(queryDTO.getPage(), queryDTO.getSize());
@@ -50,10 +50,17 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
             Integer totalUsers = superAdminMapper.countTotalUsers();
             Integer activeUsers = superAdminMapper.countActiveUsers();
 
+            System.out.println("totalUsers:" + totalUsers);
+
             // 构建返回数据
             List<UserListVO> records = result.getRecords();
+            UserListDTO userListDTO = new UserListDTO();
+            userListDTO.setTotalUsers(totalUsers);
+            userListDTO.setActiveUsers(activeUsers);
+            userListDTO.setUserListVO(records);
 
-            return ResultDTO.success(records, "查询成功");
+            //构造返回的数据
+            return ResultDTO.success(userListDTO);
 
         } catch (Exception e) {
             e.printStackTrace();
