@@ -49,7 +49,6 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users> implements 
         try {
             //设置接受返回数据
             Page<SelectClassroomDTO> selectClassroomDTOPage;
-            System.out.println("service层");
             //分页
             Page<SelectClassroomDTO> pageObj = new Page<>(page, size);
 
