@@ -14,12 +14,20 @@ public class JwtUtil {
 
     //jwt有效期
     private static final long EXPIRATION_TIME = 60 * 60 * 24;
+    
+    //提取纯Token（去掉Bearer前缀）
+    public static String extractToken(String authHeader) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+        return authHeader;
+    }
 
     //生成jwt token
     public static String createToken(String user_account, String user_password) {
         return Jwts.builder()
                 .setSubject(user_account)   //标准声明
-                .claim("user_password", user_password)    //自定义生命
+                .claim("user_password", user_password)    //自定义声明
                 .setIssuedAt(new Date())    //签发时间
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME * 1000))    //过期时间
                 .signWith(SECRET_KEY)   //签名算法和密钥

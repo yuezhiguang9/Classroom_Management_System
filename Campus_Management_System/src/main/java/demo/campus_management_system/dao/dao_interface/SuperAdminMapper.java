@@ -1,8 +1,6 @@
 package demo.campus_management_system.dao.dao_interface;
 
-
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import demo.campus_management_system.entity.DTO.AddUsersDTO;
 import demo.campus_management_system.entity.DTO.AnalyzeDataDTO;
@@ -10,25 +8,28 @@ import demo.campus_management_system.entity.DTO.UpdateUsersDTO;
 import demo.campus_management_system.entity.Super_admin;
 import demo.campus_management_system.entity.VO.BuildingUsageVO;
 import demo.campus_management_system.entity.VO.ListLogsVO;
+import demo.campus_management_system.entity.VO.UserListVO;
 import demo.campus_management_system.entity.VO.RoomTypeUsageVO;
 import demo.campus_management_system.entity.VO.RoomUsageVO;
 import org.apache.ibatis.annotations.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface SuperAdminMapper extends BaseMapper<Super_admin> {
-    //全校今日待审核数
     Integer selectTodayPending();
 
-    //全校本周通过数
+    // 全校本周通过数
     Integer selectWeekApproved(LocalDateTime StartTime, LocalDateTime EndTime);
 
-    //全校本周驳回数
+    // 全校本周驳回数
     Integer selectWeekRejected(LocalDateTime StartTime, LocalDateTime EndTime);
 
-    //需要分页的信息
+    // 需要分页的信息
     Page<ListLogsVO> selectRecordsByPage(
             Page<ListLogsVO> page,
             @Param("apply_status") String apply_status,
@@ -36,11 +37,9 @@ public interface SuperAdminMapper extends BaseMapper<Super_admin> {
             @Param("building_id") String building_id,
             @Param("user_name") String user_name,
             @Param("date_start") String date_start,
-            @Param("date_end") String date_end
-    );
-
-
-    //编辑用户：测试测试RequestBody
+            @Param("date_end") String date_end);
+    
+    // 编辑用户：测试测试RequestBody
     Boolean selectSuperAdmin(String account, String password);
 
     Boolean editUsers(UpdateUsersDTO updateUsersDTO);
@@ -48,9 +47,20 @@ public interface SuperAdminMapper extends BaseMapper<Super_admin> {
     Boolean editTeach(UpdateUsersDTO updateUsersDTO);
 
     Boolean editClassMgr(UpdateUsersDTO updateUsersDTO);
+    // ============ 用户管理相关 ============
+
+    /**
+     * 查询用户列表(分页)
+     */
+    Page<UserListVO> selectUserList(
+            Page<UserListVO> page,
+            @Param("userType") String userType,
+            @Param("collegeId") String collegeId,
+            @Param("userName") String userName,
+            @Param("userId") String userId);
 
 
-    //删除用户
+    // 删除用户
     // 删除普通用户(users表) - 添加SQL注解
     @Delete("DELETE FROM users WHERE user_account = #{account}")
     int deleteUser(@Param("account") String account);
@@ -63,8 +73,7 @@ public interface SuperAdminMapper extends BaseMapper<Super_admin> {
     @Delete("DELETE FROM classroom_manager WHERE mgr_account = #{account}")
     int deleteClassMgr(@Param("account") String account);
 
-
-    //添加用户
+    // 添加用户
     // 新增普通用户（users表）
     @Insert("INSERT INTO users (user_account, user_password, user_name, user_phone, college_id) " +
             "VALUES (#{dto.account}, #{dto.password}, #{dto.name}, #{dto.phone}, #{dto.college_id})")
@@ -80,8 +89,7 @@ public interface SuperAdminMapper extends BaseMapper<Super_admin> {
             "VALUES (#{dto.account}, #{dto.password}, #{dto.phone}, #{dto.building_id})")
     int addClassMgr(@Param("dto") AddUsersDTO dto);
 
-
-    //数据统计与分析
+    // 数据统计与分析
     // 1. 统计总用户数、教秘数、教室管理员数
     Integer countTotalUsers();
 
@@ -114,5 +122,3 @@ public interface SuperAdminMapper extends BaseMapper<Super_admin> {
     List<BuildingUsageVO> countMonthlyBuildingApplies();
 
 }
-
-

@@ -18,6 +18,15 @@ public class ResultDTO<T> {
         return result;
     }
 
+    // 成功响应（带数据和自定义消息）
+    public static <T> ResultDTO<T> success(T data, String msg) {
+        ResultDTO<T> result = new ResultDTO<>();
+        result.setCode(200);
+        result.setMsg(msg);
+        result.setData(data);
+        return result;
+    }
+
     // 失败响应（带错误信息）
     public static <T> ResultDTO<T> fail(int code, String msg) {
         ResultDTO<T> result = new ResultDTO<>();

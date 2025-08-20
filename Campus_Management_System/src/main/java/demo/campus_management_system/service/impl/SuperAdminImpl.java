@@ -5,11 +5,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.campus_management_system.dao.dao_interface.SuperAdminMapper;
 import demo.campus_management_system.entity.DTO.*;
+import demo.campus_management_system.entity.DTO.UserListQueryDTO;
 import demo.campus_management_system.entity.Super_admin;
 import demo.campus_management_system.entity.VO.BuildingUsageVO;
 import demo.campus_management_system.entity.VO.ListLogsVO;
 import demo.campus_management_system.entity.VO.RoomTypeUsageVO;
 import demo.campus_management_system.entity.VO.RoomUsageVO;
+import demo.campus_management_system.entity.VO.UserListVO;
 import demo.campus_management_system.service.service_interface.SuperAdmin;
 import demo.campus_management_system.util.DataUtils;
 import demo.campus_management_system.util.JwtUtil;
@@ -17,9 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+
+import java.util.*;
 
 @Service
 public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> implements SuperAdmin {
@@ -29,14 +30,52 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
     @Autowired
     private ObjectMapper objectMapper;
 
-    //编辑用户
+    /**
+     * 用户列表查询
+     */
+    public ResultDTO<UserListDTO> listUsers(UserListQueryDTO queryDTO) {
+        try {
+            // 创建分页对象
+            Page<UserListVO> page = new Page<>(queryDTO.getPage(), queryDTO.getSize());
+
+            // 查询用户列表
+            Page<UserListVO> result = superAdminMapper.selectUserList(
+                    page,
+                    queryDTO.getUser_type(),
+                    queryDTO.getCollege_id(),
+                    queryDTO.getUser_name(),
+                    queryDTO.getUser_id());
+
+            // 获取总用户数和活跃用户数
+            Integer totalUsers = superAdminMapper.countTotalUsers();
+            Integer activeUsers = superAdminMapper.countActiveUsers();
+
+            System.out.println("totalUsers:" + totalUsers);
+
+            // 构建返回数据
+            List<UserListVO> records = result.getRecords();
+            UserListDTO userListDTO = new UserListDTO();
+            userListDTO.setTotalUsers(totalUsers);
+            userListDTO.setActiveUsers(activeUsers);
+            userListDTO.setUserListVO(records);
+
+            //构造返回的数据
+            return ResultDTO.success(userListDTO);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResultDTO.fail(500, "服务器内部错误");
+        }
+    }
+
+    // 编辑用户
     public ResultDTO<Boolean> updateUsers(String token, UpdateUsersDTO updateUsersDTO) {
 
-        //从token中获取账号密码
+        // 从token中获取账号密码
         String account = JwtUtil.getUserAccountToken(token);
         String password = JwtUtil.getUserPasswordToken(token);
 
-        //超级管理员才能编辑用户，所以先判断是不是超级管理员
+        // 超级管理员才能编辑用户，所以先判断是不是超级管理员
         Boolean isSuperAdmin = superAdminMapper.selectSuperAdmin(account, password);
         if (isSuperAdmin == null || !isSuperAdmin) {
             return ResultDTO.fail(401, "没有权限");
@@ -66,8 +105,7 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
         }
     }
 
-
-    //删除用户
+    // 删除用户
     @Override
     public ResultDTO<Boolean> deleteUsers(String token, DeleteUsersDTO deleteUsersDTO) {
         // 从token中获取当前登录的管理员账号和密码
@@ -111,7 +149,7 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
         }
     }
 
-    //添加用户
+    // 添加用户
     @Override
     public ResultDTO<Boolean> addUsers(String token, AddUsersDTO addUsersDTO) {
         // 1. 验证Token有效性
@@ -174,7 +212,7 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
         }
     }
 
-    //日志列表
+    // 日志列表
     public ResultDTO<List<ListLogsDTO>> ListLogs(
             String apply_status,
             String college_id,
@@ -184,32 +222,31 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
             String date_end,
             Integer page,
             Integer size) {
-        //定义返回包装类
+        // 定义返回包装类
         ResultDTO<List<ListLogsDTO>> resultDTO = new ResultDTO<>();
 
         List<ListLogsDTO> result = new ArrayList<>();
         try {
 
-            //使用工具类获取本周开始时间
+            // 使用工具类获取本周开始时间
             LocalDateTime StartTime = DataUtils.getStartOfCurrentWeek();
 
-            //获取本日结束时间
+            // 获取本日结束时间
             LocalDateTime EndTime = DataUtils.getEndOfToday();
 
-            //获取全校今日同过数
+            // 获取全校今日同过数
             Integer TodayPending = superAdminMapper.selectTodayPending();
 
-            //获取本周通过数
+            // 获取本周通过数
             Integer WeekApproved = superAdminMapper.selectWeekApproved(StartTime, EndTime);
 
-            //获取全校本周驳回数
+            // 获取全校本周驳回数
             Integer WeekRejected = superAdminMapper.selectWeekRejected(StartTime, EndTime);
 
-
-            //创建分页对象
+            // 创建分页对象
             Page<ListLogsVO> pageObj = new Page<>(page, size);
 
-            //获取需要分页数据
+            // 获取需要分页数据
             Page<ListLogsVO> ListLogsVo = superAdminMapper.selectRecordsByPage(
                     pageObj,
                     apply_status,
@@ -217,37 +254,37 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
                     building_id,
                     user_name,
                     date_start,
-                    date_end
-            );
+                    date_end);
 
-
-            //创建一个ListLogsDTO类
+            // 创建一个ListLogsDTO类
             ListLogsDTO listLogsDTO = new ListLogsDTO();
 
-            //获取总页数
+            // 获取总页数
             listLogsDTO.setTotal(ListLogsVo.getPages());
 
-            //获取今天待处理数
+            // 获取今天待处理数
             listLogsDTO.setToday_pending(TodayPending);
 
-            //获取全校本周已通过数
+            // 获取全校本周已通过数
             listLogsDTO.setWeek_approved(WeekApproved);
 
-            //获取全校本周驳回数
+            // 获取全校本周驳回数
             listLogsDTO.setWeek_rejected(WeekRejected);
 
-            //获取需要分页内容
+
+            // 获取需要分页内容
             listLogsDTO.setRecordsPage(ListLogsVo);
 
-            //把数据包装
+
+            // 把数据包装
             result.add(listLogsDTO);
 
-            //使用返回类
+            // 使用返回类
             resultDTO.setCode(200);
             resultDTO.setMsg("返回成功");
             resultDTO.setData(result);
 
-            //返回数据
+            // 返回数据
             return resultDTO;
 
         } catch (Exception e) {
@@ -287,20 +324,26 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
             roomUsageVO = superAdminMapper.countFrequentlyUsedRooms(dateStart, dateEnd);
             baseStats.setActive_classroom(roomUsageVO);
 
-
             // 4. 经常使用的教室类型（前5）
             List<RoomTypeUsageVO> roomTypeUsageVOS;
             roomTypeUsageVOS = superAdminMapper.countFrequentlyUsedRoomTypes(dateStart, dateEnd);
             baseStats.setActive_classroom_type(roomTypeUsageVOS);
 
 
+
             // 5. 统计当月每栋楼预约数
+
+            
+  // 3. 统计当月每栋楼预约数
+
             List<BuildingUsageVO> buildingUsageVOS;
             buildingUsageVOS = superAdminMapper.countMonthlyBuildingApplies();
             baseStats.setTotal_of_building(buildingUsageVOS);
 
 
+
             return ResultDTO.success(Collections.singletonList(baseStats), "查询成功");
+
         } catch (Exception e) {
             e.printStackTrace();
             return ResultDTO.fail(500, "数据统计失败：" + e.getMessage());

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding ="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="demo.campus_management_system.dao.dao_interface.SuperAdminMapper">
+    <select id="selectTodayPending">
+        select count(*)
+        from apply_info
+        where apply_book_time = CURRENT_DATE;
+    </select>
+
+
+    <select id="selectWeekApproved" resultType="java.lang.Integer">
+        SELECT COUNT(*) AS approved_count
+        FROM apply_info
+        WHERE apply_book_time between #{StartTime} and #{EndTime}
+          AND apply_status = '已批准'
+    </select>
+
+    <select id="selectWeekRejected">
+        select count(*)
+        from apply_info
+        where apply_book_time between #{StartTime} and #{EndTime}
+          and apply_status = '已拒绝'
+    </select>
+
+    <resultMap id="listLogsVOMap" type="demo.campus_management_system.entity.VO.ListLogsVO">
+        <result property="user_name" column="user_name"/>
+        <result property="phone" column="user_phone"/>
+        <result property="book_time" column="apply_book_time"/>
+        <result property="building_name" column="building_name"/>
+        <result property="room_num" column="room_num"/>
+        <result property="date" column="res_date"/>
+        <result property="week" column="res_week"/>
+        <result property="day_of_week" column="res_day_of_week"/>
+        <result property="period" column="res_period"/>
+        <result property="purpose" column="apply_purpose"/>
+        <result property="person_count" column="apply_person_count"/>
+        <result property="apply_status" column="apply_status"/>
+    </resultMap>
+
+    <select id="selectRecordsByPage" resultMap="listLogsVOMap">
+        SELECT
+        users.user_name,
+        users.user_phone,
+        apply_info.apply_book_time,
+        building.building_name,
+        classroom.room_num,
+        classroom_resource.res_date,
+        classroom_resource.res_week,
+        classroom_resource.res_day_of_week,
+        GROUP_CONCAT(classroom_resource.res_period
+        ORDER BY CAST(SUBSTRING(classroom_resource.res_period, 3) AS UNSIGNED)) AS res_period,
+        apply_info.apply_purpose,
+        apply_info.apply_person_count,
+        apply_info.apply_status
+        FROM users
+        JOIN apply_info ON users.user_account = apply_info.user_account
+        JOIN classroom_resource ON apply_info.apply_id = classroom_resource.apply_info_id
+        JOIN classroom ON classroom_resource.room_num = classroom.room_num
+        JOIN building ON classroom.building_id = building.building_id
+        WHERE 1=1
+        <if test="apply_status != null and apply_status != ''">
+            AND apply_info.apply_status = #{apply_status}
+        </if>
+        <if test="college_id != null and college_id != ''">
+            AND users.college_id = #{college_id}
+        </if>
+        <if test="building_id != null and building_id != ''">
+            AND building.building_id = #{building_id}
+        </if>
+        <if test="user_name != null and user_name != ''">
+            AND users.user_name LIKE CONCAT('%', #{user_name}, '%')
+        </if>
+        <if test="date_start != null and date_start != '' and date_end != null and date_end != ''">
+            AND classroom_resource.res_date BETWEEN #{date_start} AND #{date_end}
+        </if>
+        <if test="(date_start != null and date_start != '') and (date_end == null or date_end == '')">
+            AND classroom_resource.res_date >= #{date_start}
+        </if>
+        <if test="(date_start == null or date_start == '') and (date_end != null and date_end != '')">
+            AND classroom_resource.res_date &lt;= #{date_end}
+        </if>
+        GROUP BY
+        apply_info.apply_id, -- 关键分组列
+        users.user_name,
+        users.user_phone,
+        apply_info.apply_book_time,
+        building.building_name,
+        classroom.room_num,
+        classroom_resource.res_date,
+        classroom_resource.res_week,
+        classroom_resource.res_day_of_week,
+        apply_info.apply_purpose,
+        apply_info.apply_person_count,
+        apply_info.apply_status
+    </select>
+
+
+</mapper>

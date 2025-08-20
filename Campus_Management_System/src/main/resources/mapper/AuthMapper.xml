@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="demo.campus_management_system.dao.dao_interface.AuthMapper">
+
+    <!-- 根据账号查询普通用户 -->
+    <select id="selectUserByAccount" resultType="demo.campus_management_system.entity.Users">
+        SELECT user_account, user_password, user_name, user_phone, college_id
+        FROM users 
+        WHERE user_account = #{account}
+    </select>
+
+    <!-- 根据账号查询教学秘书 -->
+    <select id="selectTeachSecByAccount" resultType="demo.campus_management_system.entity.Teach_Secretary">
+        SELECT sec_account, sec_password, sec_name, office_phone, college_id
+        FROM teach_secretary 
+        WHERE sec_account = #{account}
+    </select>
+
+    <!-- 根据账号查询教室管理员 -->
+    <select id="selectClassroomManagerByAccount" resultType="demo.campus_management_system.entity.Classroom_manager">
+        SELECT mgr_account, mgr_password, mgr_phone, building_id
+        FROM classroom_manager 
+        WHERE mgr_account = #{account}
+    </select>
+
+    <!-- 根据账号查询超级管理员 -->
+    <select id="selectSuperAdminByAccount" resultType="demo.campus_management_system.entity.Super_admin">
+        SELECT account, password
+        FROM super_admin 
+        WHERE account = #{account}
+    </select>
+
+    <!-- 插入登录日志 -->
+    <insert id="insertLoginLog">
+        INSERT INTO login (user_account, login_id, login_time)
+        VALUES (#{userAccount}, #{loginId}, NOW())
+    </insert>
+
+</mapper>

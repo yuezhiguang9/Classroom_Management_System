@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding = "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="demo.campus_management_system.dao.dao_interface.UsersMapper">
+
+    <resultMap id="selectClassroom" type="demo.campus_management_system.entity.DTO.SelectClassroomDTO">
+        <result property="res_id" column="res_id"/>
+        <result property="building_name" column="building_name"/>
+        <result property="room_num" column="room_num"/>
+        <result property="capacity" column="room_capacity"/>
+        <result property="room_type" column="room_type"/>
+        <result property="res_week" column="res_week"/>
+        <result property="res_day_of_week" column="res_day_of_week"/>
+        <result property="period" column="res_period"/>
+        <result property="room_status" column="res_room_status"/>
+        <result property="res_date" column="res_date"/>
+    </resultMap>
+    <select id="selectClassroom" resultMap="selectClassroom">
+        select
+        res_id,building.building_name,classroom.room_num,room_capacity,room_type,res_week,res_day_of_week,res_period,res_room_status,res_date
+        from classroom,classroom_resource,building
+        where classroom.building_id = building.building_id
+        and classroom.room_num = classroom_resource.room_num
+        <if test="building_id!=null and building_id !=''">
+            and building.building_id = #{building_id}
+        </if>
+        <if test="capacity!=null">
+            and classroom.room_capacity >= #{capacity}
+        </if>
+        <if test="room_type!=null and room_type !=''">
+            and classroom.room_type = #{room_type}
+        </if>
+        <if test="res_week!=null and res_week !=''">
+            and classroom_resource.res_week = #{res_week}
+        </if>
+        <if test="res_day_of_week!=null and res_day_of_week !=''">
+            and classroom_resource.res_day_of_week = #{res_day_of_week}
+        </if>
+        <if test="period!=null and period !=''">
+            and classroom_resource.res_period = #{period}
+        </if>
+        <if test="room_status!=null and room_status !=''">
+            and res_room_status = #{room_status}
+        </if>
+        <if test="date!=null and date !=''">
+            and DATE(res_date) = DATE(#{date})
+        </if>
+    </select>
+
+
+    <!--    //预约教室部分-->
+    <!--    查询选中的教室资源是不是空闲状态-->
+    <select id="selectRoomStatus">
+        select classroom_resource.res_room_status
+        from classroom_resource
+        where classroom_resource.res_id = #{res_id}
+    </select>
+
+
+    <!-- 通过用户账号查找教秘 -->
+    <select id="selectSecAccountByUser" resultType="java.lang.String">
+        SELECT teach_secretary.sec_account
+        FROM users
+        INNER JOIN college ON users.college_id = college.college_id
+        INNER JOIN teach_secretary ON teach_secretary.college_id = college.college_id
+        WHERE users.user_account = #{user_account}
+        LIMIT 1  <!-- 确保返回单条结果 -->
+    </select>
+
+    <!--    登记预约信息-->
+    <insert id="submitClassroomApply">
+        insert into apply_info(apply_id, apply_person_count, apply_purpose, apply_book_time, apply_status,
+                               apply_reject_reason, user_account, sec_account, user_cancel)
+        values (#{apply_id}, #{person_count}, #{purpose}, #{apply_book_time}, "待审核", "", #{user_account},
+                #{sec_account}, 0)
+    </insert>
+
+    <update id="updateRes">
+        update classroom_resource
+        set res_room_status = "已预约",
+            apply_info_id   = #{apply_id}
+        where res_id = #{res_id}
+    </update>
+    <!--    预约教室end-->
+
+
+    <!--    查看个人预约记录-->
+    <!--    本周预约数-->
+    <select id="selectUserWeelTotal">
+        select count(*)
+        from apply_info
+        where user_account = #{user_id}
+          and (apply_book_time between #{StartTime} and #{EndTime})
+    </select>
+
+    <!--    我的待审核数-->
+    <select id="selectMyPending">
+        select count(*)
+        from apply_info
+        where user_account = #{user_id}
+          and apply_status = "待审核"
+    </select>
+
+    <!--    需要分页的地方-->
+    <resultMap id="MyReservationsVO" type="demo.campus_management_system.entity.VO.myReservationsVO">
+        <result property="apply_id" column="apply_id"/>
+        <result property="building_name" column="building_name"/>
+        <result property="room_num" column="room_num"/>
+        <result property="date" column="res_date"/>
+        <result property="week" column="res_week"/>
+        <result property="res_day_of_week" column="res_day_of_week"/>
+        <result property="period" column="res_period"/>
+        <result property="purpose" column="apply_purpose"/>
+        <result property="reject_reason" column="apply_reject_reason"/>
+        <result property="book_time" column="apply_book_time"/>
+        <result property="apply_status" column="apply_status"/>
+        <result property="can_cancel" column="user_cancel"/>
+    </resultMap>
+    <select id="selectMyReservationsVO" resultMap="MyReservationsVO">
+        select apply_info.apply_id,
+               building_name,
+               classroom.room_num,
+               classroom_resource.res_date,
+               res_week,
+               res_day_of_week,
+               res_period,
+               apply_purpose,
+               apply_reject_reason,
+               apply_book_time,
+               apply_status,
+               user_cancel
+        from apply_info,
+             classroom,
+             classroom_resource,
+             building
+        where apply_info.apply_id = classroom_resource.apply_info_id
+          and classroom_resource.room_num = classroom.room_num
+          and classroom.building_id = building.building_id
+          and user_account = #{user_id}
+    </select>
+    <!--    END查看个人记录-->
+
+
+    <!--    取消预约-->
+    <update id="updateApplyInfoCancel" parameterType="String">
+        update apply_info
+        set user_cancel = "2"
+        where apply_id = #{applyId};
+    </update>
+
+    <update id="updateClassroomResource" parameterType="String">
+        update classroom_resource
+        set apply_info_id   = null,
+            res_room_status = "空闲"
+        where apply_info_id = #{applyId};
+    </update>
+
+
+    <!--    END取消预约-->
+
+
+</mapper>
