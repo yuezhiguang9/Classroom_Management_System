@@ -600,4 +600,12 @@
         LIMIT 100
     </select>
 
+    <!-- 验证超级管理员身份 -->
+    <select id="selectSuperAdmin" resultType="java.lang.Boolean">
+        SELECT COUNT(*) > 0
+        FROM super_admin
+        WHERE account = #{account}
+          AND password = #{password}
+    </select>
+
 </mapper>
