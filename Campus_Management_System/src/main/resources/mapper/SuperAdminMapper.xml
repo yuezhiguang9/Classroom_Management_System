@@ -360,42 +360,42 @@
     </select>
 
     <!-- 更新普通用户信息 -->
-    <update id="updateUserInfo">
+    <update id="editUsers" parameterType="demo.campus_management_system.entity.DTO.UpdateUsersDTO">
         UPDATE users
         SET user_name = #{name},
         user_phone = #{phone}
         <if test="password != null and password != ''">
             ,user_password = #{password}
         </if>
-        <if test="collegeId != null and collegeId != ''">
-            ,college_id = #{collegeId}
+        <if test="college_id != null and college_id != ''">
+            ,college_id = #{college_id}
         </if>
         WHERE user_account = #{account}
     </update>
 
     <!-- 更新教学秘书信息 -->
-    <update id="updateTeachSecInfo">
+    <update id="editTeach" parameterType="demo.campus_management_system.entity.DTO.UpdateUsersDTO">
         UPDATE teach_secretary
         SET sec_name = #{name},
         office_phone = #{phone}
         <if test="password != null and password != ''">
             ,sec_password = #{password}
         </if>
-        <if test="collegeId != null and collegeId != ''">
-            ,college_id = #{collegeId}
+        <if test="college_id != null and college_id != ''">
+            ,college_id = #{college_id}
         </if>
         WHERE sec_account = #{account}
     </update>
 
     <!-- 更新教室管理员信息 -->
-    <update id="updateClassroomManagerInfo">
+    <update id="editClassMgr" parameterType="demo.campus_management_system.entity.DTO.UpdateUsersDTO">
         UPDATE classroom_manager
         SET mgr_phone = #{phone}
         <if test="password != null and password != ''">
             ,mgr_password = #{password}
         </if>
-        <if test="buildingId != null and buildingId != ''">
-            ,building_id = #{buildingId}
+        <if test="building_id != null and building_id != ''">
+            ,building_id = #{building_id}
         </if>
         WHERE mgr_account = #{account}
     </update>
@@ -458,19 +458,19 @@
     <!-- 插入普通用户 -->
     <insert id="insertUser">
         INSERT INTO users (user_account, user_name, user_password, user_phone, college_id)
-        VALUES (#{account}, #{name}, #{password}, #{phone}, #{collegeId})
+        VALUES (#{account}, #{name}, #{password}, #{phone}, #{college_id})
     </insert>
 
     <!-- 插入教学秘书 -->
     <insert id="insertTeachSec">
         INSERT INTO teach_secretary (sec_account, sec_name, sec_password, office_phone, college_id)
-        VALUES (#{account}, #{name}, #{password}, #{phone}, #{collegeId})
+        VALUES (#{account}, #{name}, #{password}, #{phone}, #{college_id})
     </insert>
 
     <!-- 插入教室管理员 -->
     <insert id="insertClassroomManager">
         INSERT INTO classroom_manager (mgr_account, mgr_password, mgr_phone, building_id)
-        VALUES (#{account}, #{password}, #{phone}, #{buildingId})
+        VALUES (#{account}, #{password}, #{phone}, #{building_id})
     </insert>
 
     <!-- 插入超级管理员 -->
@@ -616,6 +616,14 @@
         </choose>
         ORDER BY ai.apply_book_time DESC
         LIMIT 100
+    </select>
+
+    <!-- 验证超级管理员身份 -->
+    <select id="selectSuperAdmin" resultType="java.lang.Boolean">
+        SELECT COUNT(*) > 0
+        FROM super_admin
+        WHERE account = #{account}
+          AND password = #{password}
     </select>
 
 </mapper>
