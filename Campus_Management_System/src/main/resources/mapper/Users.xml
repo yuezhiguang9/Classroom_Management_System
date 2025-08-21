@@ -23,16 +23,18 @@
         classroom.room_num,
         classroom.room_capacity,
         classroom.room_type,
-        MAX(classroom_resource.res_week) as res_week,
-        MAX(classroom_resource.res_day_of_week) as res_day_of_week,
+        classroom_resource.res_week,
+        classroom_resource.res_day_of_week,
         CASE
+        WHEN MAX(CASE WHEN classroom_resource.res_room_status = '不可用' THEN 1 ELSE 0 END) = 1
+        THEN '不可用'
         WHEN MAX(CASE WHEN classroom_resource.res_room_status = '已预约' THEN 1 ELSE 0 END) = 1
         THEN '已预约'
         ELSE '空闲'
         END as res_room_status,
         DATE(classroom_resource.res_date) as res_date,
         GROUP_CONCAT(
-        DISTINCT classroom_resource.res_period
+        DISTINCT CASE WHEN classroom_resource.res_room_status = '空闲' THEN classroom_resource.res_period END
         ORDER BY
         CASE
         WHEN classroom_resource.res_period LIKE '%第一节%' THEN 1
@@ -81,7 +83,9 @@
         </where>
         <!-- 确保GROUP BY前没有多余的WHERE -->
         GROUP BY DATE(classroom_resource.res_date), classroom.room_num, building.building_name, classroom.room_capacity,
-        classroom.room_type
+        classroom.room_type,
+        classroom_resource.res_week,
+        classroom_resource.res_day_of_week
     </select>
 
 
@@ -90,7 +94,9 @@
     <select id="selectRoomStatus">
         select classroom_resource.res_room_status
         from classroom_resource
-        where classroom_resource.res_id = #{res_id}
+        where res_date = #{date}
+          and res_period = #{period}
+          and room_num = #{room_num}
     </select>
 
 
@@ -114,9 +120,12 @@
 
     <update id="updateRes">
         update classroom_resource
-        set res_room_status = "已预约",
-            apply_info_id   = #{apply_id}
-        where res_id = #{res_id}
+        set apply_info_id   = #{apply_id},
+            res_room_status = "已预约"
+        where res_date = #{date}
+          and res_period = #{period}
+          and room_num = #{room_num}
+
     </update>
     <!--    预约教室end-->
 

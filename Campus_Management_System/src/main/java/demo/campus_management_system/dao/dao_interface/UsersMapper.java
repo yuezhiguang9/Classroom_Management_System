@@ -30,7 +30,7 @@ public interface UsersMapper extends BaseMapper<Users> {
     String selectRoomStatus(
             @Param("date") String data,
             @Param("room_num") String room_num,
-            @Param("period") List<String> period);
+            @Param("period") String period);
 
     //查询教室申请信息
     String selectSecAccountByUser(
@@ -49,9 +49,10 @@ public interface UsersMapper extends BaseMapper<Users> {
 
     //更新教室资源表
     int updateRes(
-            @Param("date") String data,
+            @Param("date") String date,
             @Param("room_num") String room_num,
-            @Param("period") List<String> period
+            @Param("period") String period,
+            @Param("apply_id") String apply_id
     );
 
 

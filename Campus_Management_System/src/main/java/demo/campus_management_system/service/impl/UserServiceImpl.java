@@ -89,6 +89,23 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users> implements 
 
             String sec_account = usersMapper.selectSecAccountByUser(user_account);
 
+            //校验预约信息
+            for (int i = 0; i < classroomApplyDTO.getPeriod().size(); i++) {
+                //如果没有选择预约节次，则返回错误信息
+                if (classroomApplyDTO.getPeriod().get(i) == null || classroomApplyDTO.getPeriod().get(i).equals("")) {
+                    return ResultDTO.fail(400, "请选择预约节次");
+                }
+                //如果改教室不是空闲状态，则返回错误信息
+                if (!(usersMapper.selectRoomStatus(
+                        classroomApplyDTO.getUse_date(),
+                        classroomApplyDTO.getRoom_num(),
+                        classroomApplyDTO.getPeriod().get(i)).equals("空闲"))
+                ) {
+                    return ResultDTO.fail(400, "该教室在该时间段已被预约");
+                }
+
+            }
+
             //插入预约信息
             usersMapper.submitClassroomApply(classroomApplyDTO.getUser_account(),
                     classroomApplyDTO.getPurpose(),
@@ -96,18 +113,21 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users> implements 
                     apply_id,
                     new DateTime().toString(),
                     sec_account);
-
+            
             //更新教室资源表
-            int updateResResult = usersMapper.updateRes(
-                    classroomApplyDTO.getUse_date(),
-                    classroomApplyDTO.getRoom_num(),
-                    classroomApplyDTO.getPeriod()
-            );
-            if (updateResResult > 0) {
-                return ResultDTO.success(true);
-            } else {
-                return ResultDTO.fail(400, "更新教室资源失败");
+            for (int i = 0; i < classroomApplyDTO.getPeriod().size(); i++) {
+                System.out.println("节次：" + classroomApplyDTO.getPeriod().get(i));
+                int updateResResult = usersMapper.updateRes(
+                        classroomApplyDTO.getUse_date(),
+                        classroomApplyDTO.getRoom_num(),
+                        classroomApplyDTO.getPeriod().get(i),
+                        apply_id
+                );
+                if (updateResResult <= 0) {
+                    return ResultDTO.fail(400, "更新教室资源失败");
+                }
             }
+            return ResultDTO.success(true);
 
         } catch (Exception e) {
             e.printStackTrace();
