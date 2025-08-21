@@ -1,6 +1,5 @@
 package demo.campus_management_system.controller;
 
-import demo.campus_management_system.dao.dao_interface.SuperAdminMapper;
 import demo.campus_management_system.entity.DTO.*;
 import demo.campus_management_system.service.impl.SuperAdminImpl;
 import demo.campus_management_system.service.service_interface.SuperAdmin;
@@ -21,7 +20,7 @@ public class SuperAdminController {
     // 更新用户数据
     @PostMapping("updateUsers")
     public ResultDTO<Boolean> updateUsers(@RequestHeader(value = "Authorization") String token,
-            @RequestBody UpdateUsersDTO updateUsersDTO) {
+                                          @RequestBody UpdateUsersDTO updateUsersDTO) {
         try {
 
             // 打印测试
@@ -37,9 +36,6 @@ public class SuperAdminController {
             }
             superAdminImpl.updateUsers(token, updateUsersDTO);
             return ResultDTO.success(true, "查询成功");
-
-
-            return superAdminImpl.updateUsers(token, updateUsersDTO);
 
         } catch (Exception e) {
             System.out.println("e=" + e);

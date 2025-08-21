@@ -16,5 +16,14 @@ public class UserListDTO {
     //用户列表
     private List<UserListVO> userListVO;
 
+    //分页信息
+    private Integer page;
+
+    //每页显示的数量
+    private Integer size;
+
+    //总记录数
+    private Long total;
+
 
 }

@@ -27,8 +27,6 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
 
     @Autowired
     SuperAdminMapper superAdminMapper;
-    @Autowired
-    private ObjectMapper objectMapper;
 
     /**
      * 用户列表查询
@@ -50,16 +48,25 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
             Integer totalUsers = superAdminMapper.countTotalUsers();
             Integer activeUsers = superAdminMapper.countActiveUsers();
 
-            System.out.println("totalUsers:" + totalUsers);
 
             // 构建返回数据
             List<UserListVO> records = result.getRecords();
+            //构建返回的数据
             UserListDTO userListDTO = new UserListDTO();
+            // 设置总用户数
+            userListDTO.setPage(queryDTO.getPage());
+            // 设置每页显示数量
+            userListDTO.setSize(queryDTO.getSize());
+            // 设置总记录数
+            userListDTO.setTotal(result.getTotal());
+            // 设置总用户数
             userListDTO.setTotalUsers(totalUsers);
+            // 设置活跃用户数
             userListDTO.setActiveUsers(activeUsers);
+            // 设置用户列表
             userListDTO.setUserListVO(records);
 
-            //构造返回的数据
+            //返回数据
             return ResultDTO.success(userListDTO);
 
         } catch (Exception e) {
@@ -330,16 +337,14 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
             baseStats.setActive_classroom_type(roomTypeUsageVOS);
 
 
-
             // 5. 统计当月每栋楼预约数
 
-            
-  // 3. 统计当月每栋楼预约数
+
+            // 3. 统计当月每栋楼预约数
 
             List<BuildingUsageVO> buildingUsageVOS;
             buildingUsageVOS = superAdminMapper.countMonthlyBuildingApplies();
             baseStats.setTotal_of_building(buildingUsageVOS);
-
 
 
             return ResultDTO.success(Collections.singletonList(baseStats), "查询成功");

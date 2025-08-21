@@ -1,8 +1,10 @@
 package demo.campus_management_system.service.impl;
 
+import cn.hutool.core.date.DateTime;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import demo.campus_management_system.dao.dao_interface.UsersMapper;
+import demo.campus_management_system.entity.Apply_info;
 import demo.campus_management_system.entity.DTO.ClassroomApplyDTO;
 import demo.campus_management_system.entity.DTO.SelectClassroomDTO;
 import demo.campus_management_system.entity.DTO.myReservationsDTO;
@@ -81,70 +83,35 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users> implements 
     @Transactional(rollbackFor = Exception.class)
     public ResultDTO<Boolean> submitClassroomApply(String user_account, ClassroomApplyDTO classroomApplyDTO) {
         try {
-            //查找当前登录的是不是uses表中的用户
-            if (usersMapper.selectById(user_account) == null) {
-                return ResultDTO.fail(400, "身份验证失败");
+            //生成预约id
+            Snowflake snowflake = IdUtil.createSnowflake(1, 1);
+            String apply_id = snowflake.nextId() + "";
+
+            String sec_account = usersMapper.selectSecAccountByUser(user_account);
+
+            //插入预约信息
+            usersMapper.submitClassroomApply(classroomApplyDTO.getUser_account(),
+                    classroomApplyDTO.getPurpose(),
+                    classroomApplyDTO.getPerson_count(),
+                    apply_id,
+                    new DateTime().toString(),
+                    sec_account);
+
+            //更新教室资源表
+            int updateResResult = usersMapper.updateRes(
+                    classroomApplyDTO.getUse_date(),
+                    classroomApplyDTO.getRoom_num(),
+                    classroomApplyDTO.getPeriod()
+            );
+            if (updateResResult > 0) {
+                return ResultDTO.success(true);
+            } else {
+                return ResultDTO.fail(400, "更新教室资源失败");
             }
-            //获取教室资源id列表
-            String[] stringList = classroomApplyDTO.getRes_id();
 
-            //检验这些教室资源是不是都空闲，只有空闲才能预约
-            for (String res_id : stringList) {
-                if (usersMapper.selectRoomStatus(res_id) == null || !usersMapper.selectRoomStatus(res_id).equals("空闲")) {
-                    return ResultDTO.fail(400, res_id + "不是一个空闲教室资源,或者不存在该教室资源");
-                }
-            }
-
-            // 初始化雪花算法生成器（workerId和dataCenterId自动分配）
-            Snowflake snowflake = IdUtil.getSnowflake(1, 1);
-
-            //每次只生成一个申请信息id
-            String apply_id = snowflake.nextIdStr();
-
-            //获取预约时间
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String apply_book_time = sdf.format(new Date());
-
-            //判断条件，用于只执行一次
-            boolean flag = true;
-
-            //循环
-            for (String res_id : stringList) {
-                try {
-                    String sec_account;
-                    // 获取申请人学院的教秘id
-                    sec_account = usersMapper.selectSecAccountByUser(classroomApplyDTO.getUser_account());
-
-
-                    // 如果找不到，那就安排默认的教秘处理
-                    if (sec_account == null || sec_account.isEmpty()) {
-                        sec_account = "sec004"; // 配置默认管理员账号
-                    }
-
-                    if (flag) {
-                        //插入数据，只做一次
-                        usersMapper.submitClassroomApply(
-                                classroomApplyDTO.getUser_account(),
-                                classroomApplyDTO.getPurpose(),
-                                classroomApplyDTO.getPerson_count(),
-                                apply_id,
-                                apply_book_time,
-                                sec_account
-                        );
-                        //把判断条件改成false，往后这个if不会触发
-                        flag = false;
-                    }
-                    //插入完数据再更新教室资源表
-                    usersMapper.updateRes(res_id, apply_id);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new RuntimeException("资源更新失败: " + res_id, e);
-                }
-            }
-            return ResultDTO.success(true);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResultDTO.fail(400, e.toString());
+            return ResultDTO.fail(500, "服务器内部错误");
         }
     }
 

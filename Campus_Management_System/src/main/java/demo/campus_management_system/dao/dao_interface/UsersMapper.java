@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Mapper
@@ -25,12 +26,18 @@ public interface UsersMapper extends BaseMapper<Users> {
             String date);//使用时间
 
 
-    String selectRoomStatus(String res_id);
+    //查询教室状态
+    String selectRoomStatus(
+            @Param("date") String data,
+            @Param("room_num") String room_num,
+            @Param("period") List<String> period);
 
+    //查询教室申请信息
     String selectSecAccountByUser(
             @Param("user_account") String user_account
     );
 
+    //提交教室申请
     int submitClassroomApply(
             @Param("user_account") String user_account,
             @Param("purpose") String purpose,
@@ -40,9 +47,11 @@ public interface UsersMapper extends BaseMapper<Users> {
             @Param("sec_account") String sec_account
     );
 
+    //更新教室资源表
     int updateRes(
-            @Param("res_id") String res_id,
-            @Param("apply_id") String apply_id
+            @Param("date") String data,
+            @Param("room_num") String room_num,
+            @Param("period") List<String> period
     );
 
 

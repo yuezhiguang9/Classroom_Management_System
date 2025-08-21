@@ -41,19 +41,17 @@
 
     <!-- 4.计算当月与上月预约总数差值 -->
     <select id="calculateMomApptComparison" resultType="java.lang.Integer">
-        SELECT
-            (
-                -- 当月预约总数
-                SELECT COUNT(*)
-                FROM apply_info
-                WHERE DATE_FORMAT(apply_book_time, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
-            ) -
-            (
-                -- 上月预约总数
-                SELECT COUNT(*)
-                FROM apply_info
-                WHERE DATE_FORMAT(apply_book_time, '%Y-%m') = DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m')
-            ) AS mom_appt_comparison
+        SELECT (
+                   -- 当月预约总数
+                   SELECT COUNT(*)
+                   FROM apply_info
+                   WHERE DATE_FORMAT(apply_book_time, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')) -
+               (
+                   -- 上月预约总数
+                   SELECT COUNT(*)
+                   FROM apply_info
+                   WHERE DATE_FORMAT(apply_book_time, '%Y-%m') =
+                         DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m')) AS mom_appt_comparison
     </select>
 
 
@@ -241,6 +239,9 @@
         <result property="college" column="college"/>
         <result property="user_account" column="user_account"/>
         <result property="last_login" column="last_login"/>
+        <result property="building_name" column="building_name"/>
+        <result property="password" column="password"/>
+        <result property="phone" column="phone"/>
     </resultMap>
 
 
@@ -253,7 +254,10 @@
         col.college_name as college,
         user_account,
         (SELECT login_time FROM login WHERE user_account = u.user_account ORDER BY login_time DESC LIMIT 1) as
-        last_login
+        last_login,
+        NULL as building_name,
+        user_password as password,
+        user_phone as phone
         FROM users u
         LEFT JOIN college col ON u.college_id = col.college_id
         <where>
@@ -278,7 +282,10 @@
         'teach_sec' as user_type,
         col.college_name as college,
         sec_account as user_account,
-        NULL as last_login
+        NULL as last_login,
+        NULL as building_name,
+        sec_password as password,
+        office_phone as phone
         FROM teach_secretary ts
         LEFT JOIN college col ON ts.college_id = col.college_id
         <where>
@@ -301,9 +308,12 @@
         SELECT
         '教室管理员' as name,
         'class_mgr' as user_type,
-        b.building_name as college,
+        null as college,
         mgr_account as user_account,
-        NULL as last_login
+        NULL as last_login,
+        b.building_name as building_name,
+        mgr_password as password,
+        mgr_phone as phone
         FROM classroom_manager cm
         LEFT JOIN building b ON cm.building_id = b.building_id
         <where>
@@ -322,7 +332,10 @@
         'super_admin' as user_type,
         '系统管理' as college,
         account as user_account,
-        NULL as last_login
+        NULL as last_login,
+        NULL as building_name,
+        password as password,
+        null as phone
         FROM super_admin sa
         <where>
             <if test="userType != null and userType != '' and userType != 'all'">
