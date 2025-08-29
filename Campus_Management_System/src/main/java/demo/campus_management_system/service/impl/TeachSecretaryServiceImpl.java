@@ -138,11 +138,10 @@ public class TeachSecretaryServiceImpl extends ServiceImpl<TeachSecretaryMapper,
 
             // 获取统计数据
             ClassroomUsageVO statistics = teachSecretaryMapper.selectUsageStatistics(
-                    queryDTO.getTime_range(),
-                    queryDTO.getDate_start(),
-                    queryDTO.getDate_end(),
-                    queryDTO.getBuilding_id(),
-                    queryDTO.getRoom_type()
+                queryDTO.getDate_start(),
+                queryDTO.getDate_end(),
+                queryDTO.getBuilding_id(),
+                queryDTO.getRoom_type()
             );
 
             // 创建分页对象
@@ -163,12 +162,12 @@ public class TeachSecretaryServiceImpl extends ServiceImpl<TeachSecretaryMapper,
             // 将统计数据添加到第一条记录中（简化处理）
             if (statistics != null && !records.isEmpty()) {
                 ClassroomUsageVO firstRecord = records.get(0);
-                firstRecord.setAvg_usage_rate(statistics.getAvg_usage_rate());
-                firstRecord.setMost_used(statistics.getMost_used());
-                firstRecord.setMost_usage_count(statistics.getMost_usage_count());
-                firstRecord.setLeast_used(statistics.getLeast_used());
-                firstRecord.setLeast_usage_count(statistics.getLeast_usage_count());
-                firstRecord.setTotal_usage(statistics.getTotal_usage());
+                firstRecord.setAvgUsageRate(statistics.getAvgUsageRate());
+                firstRecord.setMostUsed(statistics.getMostUsed());
+                firstRecord.setMostUsageCount(statistics.getMostUsageCount());
+                firstRecord.setLeastUsed(statistics.getLeastUsed());
+                firstRecord.setLeastUsageCount(statistics.getLeastUsageCount());
+                firstRecord.setTotalUsage(statistics.getTotalUsage());
             }
 
             return ResultDTO.success(records, "查询成功");

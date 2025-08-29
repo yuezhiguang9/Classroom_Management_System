@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.campus_management_system.dao.dao_interface.SuperAdminMapper;
 import demo.campus_management_system.entity.DTO.*;
+import demo.campus_management_system.entity.DTO.ListLogsDTO;
 import demo.campus_management_system.entity.DTO.UserListQueryDTO;
 import demo.campus_management_system.entity.Super_admin;
 import demo.campus_management_system.entity.VO.BuildingUsageVO;
@@ -219,7 +220,7 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
         }
     }
 
-    // 日志列表
+    //日志列表
     public ResultDTO<List<ListLogsDTO>> ListLogs(
             String apply_status,
             String college_id,
@@ -229,31 +230,32 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
             String date_end,
             Integer page,
             Integer size) {
-        // 定义返回包装类
+        //定义返回包装类
         ResultDTO<List<ListLogsDTO>> resultDTO = new ResultDTO<>();
 
         List<ListLogsDTO> result = new ArrayList<>();
         try {
 
-            // 使用工具类获取本周开始时间
+            //使用工具类获取本周开始时间
             LocalDateTime StartTime = DataUtils.getStartOfCurrentWeek();
 
-            // 获取本日结束时间
+            //获取本日结束时间
             LocalDateTime EndTime = DataUtils.getEndOfToday();
 
-            // 获取全校今日同过数
+            //获取全校今日同过数
             Integer TodayPending = superAdminMapper.selectTodayPending();
 
-            // 获取本周通过数
+            //获取本周通过数
             Integer WeekApproved = superAdminMapper.selectWeekApproved(StartTime, EndTime);
 
-            // 获取全校本周驳回数
+            //获取全校本周驳回数
             Integer WeekRejected = superAdminMapper.selectWeekRejected(StartTime, EndTime);
 
-            // 创建分页对象
+
+            //创建分页对象
             Page<ListLogsVO> pageObj = new Page<>(page, size);
 
-            // 获取需要分页数据
+            //获取需要分页数据
             Page<ListLogsVO> ListLogsVo = superAdminMapper.selectRecordsByPage(
                     pageObj,
                     apply_status,
@@ -261,32 +263,32 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
                     building_id,
                     user_name,
                     date_start,
-                    date_end);
+                    date_end
+            );
 
-            // 创建一个ListLogsDTO类
+
+            //创建一个ListLogsDTO类
             ListLogsDTO listLogsDTO = new ListLogsDTO();
 
-            // 获取总页数
+            //获取总页数
             listLogsDTO.setTotal(ListLogsVo.getPages());
 
-            // 获取今天待处理数
+            //获取今天待处理数
             listLogsDTO.setToday_pending(TodayPending);
 
-            // 获取全校本周已通过数
+            //获取全校本周已通过数
             listLogsDTO.setWeek_approved(WeekApproved);
 
-            // 获取全校本周驳回数
+            //获取全校本周驳回数
             listLogsDTO.setWeek_rejected(WeekRejected);
 
-
-            // 获取需要分页内容
+            //获取需要分页内容
             listLogsDTO.setRecordsPage(ListLogsVo);
 
-
-            // 把数据包装
+            //把数据包装
             result.add(listLogsDTO);
 
-            // 使用返回类
+            //使用返回类
             resultDTO.setCode(200);
             resultDTO.setMsg("返回成功");
             resultDTO.setData(result);

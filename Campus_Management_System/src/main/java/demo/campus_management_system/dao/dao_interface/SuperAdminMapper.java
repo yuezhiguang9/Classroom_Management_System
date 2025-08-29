@@ -23,13 +23,13 @@ import java.util.Map;
 public interface SuperAdminMapper extends BaseMapper<Super_admin> {
     Integer selectTodayPending();
 
-    // 全校本周通过数
+    //全校本周通过数
     Integer selectWeekApproved(LocalDateTime StartTime, LocalDateTime EndTime);
 
-    // 全校本周驳回数
+    //全校本周驳回数
     Integer selectWeekRejected(LocalDateTime StartTime, LocalDateTime EndTime);
 
-    // 需要分页的信息
+    //需要分页的信息
     Page<ListLogsVO> selectRecordsByPage(
             Page<ListLogsVO> page,
             @Param("apply_status") String apply_status,
@@ -38,7 +38,7 @@ public interface SuperAdminMapper extends BaseMapper<Super_admin> {
             @Param("user_name") String user_name,
             @Param("date_start") String date_start,
             @Param("date_end") String date_end);
-    
+
     // 编辑用户：测试测试RequestBody
     Boolean selectSuperAdmin(String account, String password);
 

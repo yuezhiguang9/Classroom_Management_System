@@ -1,6 +1,10 @@
 package demo.campus_management_system.controller;
 
 import demo.campus_management_system.entity.DTO.*;
+
+import demo.campus_management_system.entity.DTO.ListLogsDTO;
+import demo.campus_management_system.entity.DTO.UserListQueryDTO;
+import demo.campus_management_system.entity.VO.UserListVO;
 import demo.campus_management_system.service.impl.SuperAdminImpl;
 import demo.campus_management_system.service.service_interface.SuperAdmin;
 import demo.campus_management_system.util.JwtUtil;
@@ -41,6 +45,34 @@ public class SuperAdminController {
             System.out.println("e=" + e);
             return ResultDTO.fail(500, e.toString());
         }
+    }
+
+
+    @GetMapping("/listUsers")
+    public ResultDTO<List<UserListVO>> listUsers(
+            @RequestHeader(value = "Authorization") String token,
+            @RequestParam(required = false) String user_type,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) String college_id,
+            @RequestParam(required = false) String user_name,
+            @RequestParam(required = false) String user_id) {
+
+        // JWT认证 - 去掉Bearer前缀
+        String actualToken = JwtUtil.extractToken(token);
+        if (JwtUtil.getUserAccountToken(actualToken).equals("error")) {
+            return ResultDTO.fail(401, "未登录或Token失效");
+        }
+
+        UserListQueryDTO queryDTO = new UserListQueryDTO();
+        queryDTO.setUser_type(user_type);
+        queryDTO.setPage(page);
+        queryDTO.setSize(size);
+        queryDTO.setCollege_id(college_id);
+        queryDTO.setUser_name(user_name);
+        queryDTO.setUser_id(user_id);
+
+        return superAdminImpl.listUsers(queryDTO);
     }
 
     // 删除用户数据

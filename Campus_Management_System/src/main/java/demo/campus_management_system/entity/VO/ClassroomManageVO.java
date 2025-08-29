@@ -16,7 +16,7 @@ public class ClassroomManageVO {
     /**
      * 教室编号
      */
-    private String room_num;
+    private String roomNum;
     
     /**
      * 教室容量
@@ -26,10 +26,10 @@ public class ClassroomManageVO {
     /**
      * 教室类型
      */
-    private String room_type;
+    private String roomType;
     
     /**
      * 教室状态(可用/维修中/已占用)
      */
-    private String room_status;
+    private String roomStatus;
 }

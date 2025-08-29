@@ -54,7 +54,6 @@ public interface TeachSecretaryMapper extends BaseMapper<Teach_Secretary> {
      * 查询教室使用率统计数据
      */
     ClassroomUsageVO selectUsageStatistics(
-            @Param("timeRange") String timeRange,
             @Param("dateStart") String dateStart,
             @Param("dateEnd") String dateEnd,
             @Param("buildingId") String buildingId,

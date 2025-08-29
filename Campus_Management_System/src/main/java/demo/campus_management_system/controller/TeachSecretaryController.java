@@ -74,7 +74,7 @@ public class TeachSecretaryController {
 
         // 验证状态值
         String status = updateDTO.getApply_status();
-        if (!"待审核".equals(status) && !"已通过".equals(status) && !"已驳回".equals(status)) {
+        if (!"待审核".equals(status) && !"已批准".equals(status) && !"已拒绝".equals(status)) {
             return ResultDTO.fail(400, "无效的申请状态");
         }
 
@@ -87,25 +87,17 @@ public class TeachSecretaryController {
     @GetMapping("/classroomUsage")
     public ResultDTO<List<ClassroomUsageVO>> classroomUsage(
             @RequestHeader(value = "Authorization") String token,
-            @RequestParam String time_range,
             @RequestParam(required = false) String date_start,
             @RequestParam(required = false) String date_end,
             @RequestParam(required = false) String building_id,
             @RequestParam(required = false) String room_type,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
-
-        // 参数校验
-        if (time_range == null || time_range.trim().isEmpty()) {
-            return ResultDTO.fail(400, "时间范围不能为空");
-        }
-        if (!"week".equals(time_range) && !"month".equals(time_range) && !"semester".equals(time_range)) {
-            return ResultDTO.fail(400, "无效的时间范围");
-        }
-
+        
+        // 参数校
+        
         // 构建查询DTO
         ClassroomUsageQueryDTO queryDTO = new ClassroomUsageQueryDTO();
-        queryDTO.setTime_range(time_range);
         queryDTO.setDate_start(date_start);
         queryDTO.setDate_end(date_end);
         queryDTO.setBuilding_id(building_id);

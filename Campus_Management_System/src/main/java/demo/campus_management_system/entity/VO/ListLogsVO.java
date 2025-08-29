@@ -8,19 +8,19 @@ import java.util.List;
 @Data
 public class ListLogsVO {
     //申请人姓名
-    private String user_name;
+    private String userName;
 
 
     //联系电话
     private String phone;
 
     //预约时间
-    private Date book_time;
+    private Date bookTime;
 
     //教室（格式：building_name+room_num)
-    private String building_name;
+    private String buildingName;
 
-    private String room_num;
+    private String roomNum;
 
 
     //使用时间（格式：date+week+day_of_week+period)
@@ -31,16 +31,22 @@ public class ListLogsVO {
     //星期
     private String day_of_week;
     //节次
+
+    private String dayOfWeek;
+
     private String period;
 
     //用途
     private String purpose;
 
     //人数
-    private Integer person_count;
+    private Integer personCount;
 
     //申请状态
     private String apply_status;
+
+
+    private String applyStatus;
 
 
 }

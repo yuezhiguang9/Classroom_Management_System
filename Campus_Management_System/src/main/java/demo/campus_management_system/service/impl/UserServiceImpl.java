@@ -113,7 +113,7 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users> implements 
                     apply_id,
                     new DateTime().toString(),
                     sec_account);
-            
+
             //更新教室资源表
             for (int i = 0; i < classroomApplyDTO.getPeriod().size(); i++) {
                 System.out.println("节次：" + classroomApplyDTO.getPeriod().get(i));
