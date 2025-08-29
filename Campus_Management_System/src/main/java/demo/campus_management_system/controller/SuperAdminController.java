@@ -49,7 +49,7 @@ public class SuperAdminController {
 
 
     @GetMapping("/listUsers")
-    public ResultDTO<List<UserListVO>> listUsers(
+    public ResultDTO<UserListDTO> listUsers(
             @RequestHeader(value = "Authorization") String token,
             @RequestParam(required = false) String user_type,
             @RequestParam(defaultValue = "1") Integer page,

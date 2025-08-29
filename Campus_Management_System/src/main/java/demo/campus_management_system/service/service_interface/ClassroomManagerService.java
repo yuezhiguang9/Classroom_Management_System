@@ -2,6 +2,7 @@ package demo.campus_management_system.service.service_interface;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import demo.campus_management_system.entity.Classroom_manager;
+import demo.campus_management_system.entity.DTO.BatchUpdateStatusDTO;
 import demo.campus_management_system.entity.DTO.ClassroomManageQueryDTO;
 import demo.campus_management_system.entity.VO.ClassroomManageVO;
 import demo.campus_management_system.entity.VO.ApplyInfoManageVO;
