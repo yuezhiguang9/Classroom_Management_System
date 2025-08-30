@@ -111,14 +111,14 @@
         LEFT JOIN classroom_manager cm ON c.building_id = cm.building_id
         WHERE cm.mgr_account = #{mgrAccount}
           AND ai.user_cancel = 0
-          AND ai.apply_status = '已批准'
+          AND ai.apply_status = '已通过'
         <if test="applyStatus != null and applyStatus != ''">
             <choose>
-                <when test="applyStatus == '已批准'">
-                    AND ai.apply_status = '已批准'
+                <when test="applyStatus == '已通过'">
+                    AND ai.apply_status = '已通过'
                 </when>
                 <when test="applyStatus == '已驳回'">
-                    AND ai.apply_status = '已拒绝'
+                    AND ai.apply_status = '已驳回'
                 </when>
             </choose>
         </if>

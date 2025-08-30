@@ -101,7 +101,7 @@ public class TeachSecretaryServiceImpl extends ServiceImpl<TeachSecretaryMapper,
             }
             
             // 参数校验
-            if ("已拒绝".equals(updateDTO.getApply_status())) {
+            if ("已驳回".equals(updateDTO.getApply_status())) {
                 if (updateDTO.getReject_reason() == null || updateDTO.getReject_reason().trim().isEmpty()) {
                     return ResultDTO.fail(400, "驳回时必须填写驳回原因");
                 }

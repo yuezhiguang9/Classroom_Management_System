@@ -73,7 +73,7 @@ public class TeachSecretaryController {
         
         // 验证状态值
         String status = updateDTO.getApply_status();
-        if (!"待审核".equals(status) && !"已批准".equals(status) && !"已拒绝".equals(status)) {
+        if (!"待审核".equals(status) && !"已通过".equals(status) && !"已驳回".equals(status)) {
             return ResultDTO.fail(400, "无效的申请状态");
         }
         

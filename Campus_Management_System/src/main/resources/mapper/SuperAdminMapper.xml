@@ -17,7 +17,7 @@
     <select id="selectWeekApproved" resultType="Integer">
         SELECT COUNT(*)
         FROM apply_info
-        WHERE apply_status = '已批准'
+        WHERE apply_status = '已通过'
           AND apply_book_time BETWEEN #{startTime} AND #{endTime}
           AND user_cancel = 0
     </select>
@@ -26,7 +26,7 @@
     <select id="selectWeekRejected" resultType="Integer">
         SELECT COUNT(*)
         FROM apply_info
-        WHERE apply_status = '已拒绝'
+        WHERE apply_status = '已驳回'
           AND apply_book_time BETWEEN #{startTime} AND #{endTime}
           AND user_cancel = 0
     </select>
@@ -361,7 +361,7 @@
     <select id="calculateApprovalRate" resultType="String">
         SELECT CONCAT(
             ROUND(
-                (SELECT COUNT(*) FROM apply_info WHERE apply_status = '已批准' AND user_cancel = 0) * 100.0 /
+                (SELECT COUNT(*) FROM apply_info WHERE apply_status = '已通过' AND user_cancel = 0) * 100.0 /
                 (SELECT COUNT(*) FROM apply_info WHERE user_cancel = 0), 2
             ), '%'
         ) as approval_rate
