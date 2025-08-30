@@ -27,16 +27,16 @@ public class TeachSecretaryController {
     @GetMapping("/listLogs")
     public ResultDTO<List<ListLogsVO>> listLogs(
             @RequestHeader(value = "Authorization") String token,
-            @RequestParam(required = false) String apply_status,
-            @RequestParam(required = false) String building_id,
-            @RequestParam(required = false) String user_name,
-            @RequestParam(required = false) String date_start,
-            @RequestParam(required = false) String date_end,
+            @RequestParam(required = false) String applyStatus,
+            @RequestParam(required = false) String buildingId,
+            @RequestParam(required = false) String userName,
+            @RequestParam(required = false) String dateStart,
+            @RequestParam(required = false) String dateEnd,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
         
-        return teachSecretaryService.listLogs(token, apply_status, building_id, 
-                user_name, date_start, date_end, page, size);
+        return teachSecretaryService.listLogs(token, applyStatus, buildingId,
+                userName, dateStart, dateEnd, page, size);
     }
     
     /**
