@@ -2,6 +2,7 @@ package demo.campus_management_system.controller;
 
 import demo.campus_management_system.entity.Building;
 import demo.campus_management_system.entity.College;
+import demo.campus_management_system.entity.DTO.ClassroomTypeDTO;
 import demo.campus_management_system.entity.DTO.ResultDTO;
 import demo.campus_management_system.service.impl.CommonService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,11 @@ public class CommonController {
     @GetMapping("getBuildings")
     public ResultDTO<List<Building>> getBuildings() {
         return commonService.getBuildings();
+    }
+
+    @GetMapping("getRoomTypes")
+    public ResultDTO<List<ClassroomTypeDTO>> getRoomTypes() {
+        return commonService.getClassroomTypes();
     }
 
 

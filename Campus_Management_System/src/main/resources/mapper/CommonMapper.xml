@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding = "UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -7,20 +7,26 @@
         <result property="collegeId" column="college_id"/>
         <result property="collegeName" column="college_name"/>
     </resultMap>
-    <select id="getColleges" resultMap="getColleges">
+    <select id="selectColleges" resultMap="getColleges">
         select college.college_id, college.college_name
         from college
     </select>
 
-
-    <resultMap id="getBuildings" type="demo.campus_management_system.entity.Building">
+    <resultMap id="getBuilding" type="demo.campus_management_system.entity.Building">
         <result property="buildingId" column="building_id"/>
         <result property="buildingName" column="building_name"/>
     </resultMap>
-    <select id="getBuildings">
+    <select id="selectBuildings" resultMap="getBuilding">
         select building.building_id, building.building_name
         from building
     </select>
 
-
+    <resultMap id="getRoomTypes" type="demo.campus_management_system.entity.DTO.ClassroomTypeDTO">
+        <result property="room_type" column="room_type"/>
+    </resultMap>
+    
+    <select id="selectRoomTypes" resultMap="getRoomTypes">
+        select distinct classroom.room_type
+        from classroom
+    </select>
 </mapper>
