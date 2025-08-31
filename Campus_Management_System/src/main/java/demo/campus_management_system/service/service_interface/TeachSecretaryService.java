@@ -6,7 +6,7 @@ import demo.campus_management_system.entity.DTO.ClassroomUsageQueryDTO;
 import demo.campus_management_system.entity.DTO.UpdateStatusDTO;
 import demo.campus_management_system.entity.VO.ClassroomUsageVO;
 import demo.campus_management_system.entity.VO.ListLogsVO;
-import demo.campus_management_system.util.ResultDTO;
+import demo.campus_management_system.entity.DTO.ResultDTO;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import java.util.List;
  * 教学秘书服务接口
  */
 public interface TeachSecretaryService extends IService<Teach_Secretary> {
-    
+
     /**
      * 教秘审核工作台
      */
@@ -28,17 +28,17 @@ public interface TeachSecretaryService extends IService<Teach_Secretary> {
             Integer page,
             Integer size
     );
-    
+
     /**
      * 审核详情查看
      */
     ResultDTO<ListLogsVO> viewLogs(String token, String applyId);
-    
+
     /**
      * 审核状态更新
      */
     ResultDTO<Boolean> updateStatus(String token, UpdateStatusDTO updateDTO);
-    
+
     /**
      * 查看教室使用率页面
      */

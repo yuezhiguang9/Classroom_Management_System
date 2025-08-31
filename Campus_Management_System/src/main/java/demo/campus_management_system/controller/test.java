@@ -4,11 +4,9 @@ import demo.campus_management_system.dao.dao_interface.SuperAdminMapper;
 import demo.campus_management_system.entity.Users;
 import demo.campus_management_system.service.service_interface.UserService;
 import demo.campus_management_system.util.JwtUtil;
-import demo.campus_management_system.util.ResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLOutput;
 import java.util.List;
 
 @RestController

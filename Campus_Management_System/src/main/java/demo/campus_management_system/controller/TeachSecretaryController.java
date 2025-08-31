@@ -2,10 +2,11 @@ package demo.campus_management_system.controller;
 
 import demo.campus_management_system.entity.DTO.ClassroomUsageQueryDTO;
 import demo.campus_management_system.entity.DTO.UpdateStatusDTO;
+
 import demo.campus_management_system.entity.VO.ClassroomUsageVO;
 import demo.campus_management_system.entity.VO.ListLogsVO;
 import demo.campus_management_system.service.service_interface.TeachSecretaryService;
-import demo.campus_management_system.util.ResultDTO;
+import demo.campus_management_system.entity.DTO.ResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -18,10 +19,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/sec")
 public class TeachSecretaryController {
-    
+
     @Autowired
     private TeachSecretaryService teachSecretaryService;
-    
+
     /**
      * 教秘审核工作台
      */
@@ -46,7 +47,7 @@ public class TeachSecretaryController {
         return teachSecretaryService.listLogs(token, applyStatus, buildingId,
                 userName, dateStart, dateEnd, page, size);
     }
-    
+
     /**
      * 审核详情查看
      */
@@ -54,15 +55,15 @@ public class TeachSecretaryController {
     public ResultDTO<ListLogsVO> viewLogs(
             @RequestHeader(value = "Authorization") String token,
             @RequestParam String apply_id) {
-        
+
         // 参数校验
         if (apply_id == null || apply_id.trim().isEmpty()) {
             return ResultDTO.fail(400, "申请编号不能为空");
         }
-        
+
         return teachSecretaryService.viewLogs(token, apply_id);
     }
-    
+
     /**
      * 审核状态更新（可修改批注原因）
      */
@@ -70,7 +71,7 @@ public class TeachSecretaryController {
     public ResultDTO<Boolean> updateStatus(
             @RequestHeader(value = "Authorization") String token,
             @RequestBody UpdateStatusDTO updateDTO) {
-        
+
         // 参数校验
         if (updateDTO.getApply_id() == null || updateDTO.getApply_id().trim().isEmpty()) {
             return ResultDTO.fail(400, "申请编号不能为空");
@@ -78,16 +79,16 @@ public class TeachSecretaryController {
         if (updateDTO.getApply_status() == null || updateDTO.getApply_status().trim().isEmpty()) {
             return ResultDTO.fail(400, "申请状态不能为空");
         }
-        
+
         // 验证状态值
         String status = updateDTO.getApply_status();
         if (!"待审核".equals(status) && !"已通过".equals(status) && !"已驳回".equals(status)) {
             return ResultDTO.fail(400, "无效的申请状态");
         }
-        
+
         return teachSecretaryService.updateStatus(token, updateDTO);
     }
-    
+
     /**
      * 查看教室使用率页面
      */
@@ -111,7 +112,7 @@ public class TeachSecretaryController {
         queryDTO.setRoom_type(room_type);
         queryDTO.setPage(page);
         queryDTO.setSize(size);
-        
+
         return teachSecretaryService.classroomUsage(token, queryDTO);
     }
 }

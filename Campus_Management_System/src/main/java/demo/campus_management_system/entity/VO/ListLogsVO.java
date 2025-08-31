@@ -3,6 +3,7 @@ package demo.campus_management_system.entity.VO;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class ListLogsVO {
@@ -23,9 +24,13 @@ public class ListLogsVO {
 
 
     //使用时间（格式：date+week+day_of_week+period)
+    //日期
     private String date;
-
+    //周次
     private String week;
+    //星期
+    private String day_of_week;
+    //节次
 
     private String dayOfWeek;
 
@@ -38,6 +43,9 @@ public class ListLogsVO {
     private Integer personCount;
 
     //申请状态
+    private String apply_status;
+
+
     private String applyStatus;
 
 

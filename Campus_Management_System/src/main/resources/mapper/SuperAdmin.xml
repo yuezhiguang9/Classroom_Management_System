@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding = "UTF-8" ?>
+<?xml version="1.0" encoding ="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -24,7 +24,6 @@
           and apply_status = '已驳回'
     </select>
 
-
     <resultMap id="listLogsVOMap" type="demo.campus_management_system.entity.VO.ListLogsVO">
         <result property="user_name" column="user_name"/>
         <result property="phone" column="user_phone"/>
@@ -44,27 +43,23 @@
         SELECT
         users.user_name,
         users.user_phone,
-        apply_book_time,
-        building_name,
+        apply_info.apply_book_time,
+        building.building_name,
         classroom.room_num,
-        res_date,
-        res_week,
-        res_day_of_week,
-        res_period,
-        apply_purpose,
-        apply_person_count,
-        apply_status
-        from users,
-        apply_info,
-        classroom_resource,
-        classroom,
-        building,
-        college
-        where users.user_account = apply_info.user_account
-        and apply_info.apply_id = classroom_resource.apply_info_id
-        and classroom_resource.room_num = classroom.room_num
-        and classroom.building_id = building.building_id
-        and users.college_id = college.college_id
+        classroom_resource.res_date,
+        classroom_resource.res_week,
+        classroom_resource.res_day_of_week,
+        GROUP_CONCAT(classroom_resource.res_period
+        ORDER BY CAST(SUBSTRING(classroom_resource.res_period, 3) AS UNSIGNED)) AS res_period,
+        apply_info.apply_purpose,
+        apply_info.apply_person_count,
+        apply_info.apply_status
+        FROM users
+        JOIN apply_info ON users.user_account = apply_info.user_account
+        JOIN classroom_resource ON apply_info.apply_id = classroom_resource.apply_info_id
+        JOIN classroom ON classroom_resource.room_num = classroom.room_num
+        JOIN building ON classroom.building_id = building.building_id
+        WHERE 1=1
         <if test="apply_status != null and apply_status != ''">
             AND apply_info.apply_status = #{apply_status}
         </if>
@@ -86,8 +81,19 @@
         <if test="(date_start == null or date_start == '') and (date_end != null and date_end != '')">
             AND classroom_resource.res_date &lt;= #{date_end}
         </if>
-
-
+        GROUP BY
+        apply_info.apply_id, -- 关键分组列
+        users.user_name,
+        users.user_phone,
+        apply_info.apply_book_time,
+        building.building_name,
+        classroom.room_num,
+        classroom_resource.res_date,
+        classroom_resource.res_week,
+        classroom_resource.res_day_of_week,
+        apply_info.apply_purpose,
+        apply_info.apply_person_count,
+        apply_info.apply_status
     </select>
 
 

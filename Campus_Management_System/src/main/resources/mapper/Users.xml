@@ -5,47 +5,87 @@
 <mapper namespace="demo.campus_management_system.dao.dao_interface.UsersMapper">
 
     <resultMap id="selectClassroom" type="demo.campus_management_system.entity.DTO.SelectClassroomDTO">
-        <result property="res_id" column="res_id"/>
         <result property="building_name" column="building_name"/>
         <result property="room_num" column="room_num"/>
         <result property="capacity" column="room_capacity"/>
         <result property="room_type" column="room_type"/>
         <result property="res_week" column="res_week"/>
         <result property="res_day_of_week" column="res_day_of_week"/>
-        <result property="period" column="res_period"/>
         <result property="room_status" column="res_room_status"/>
         <result property="res_date" column="res_date"/>
+        <result property="period" column="periods"
+                typeHandler="demo.campus_management_system.util.StringToListTypeHandler"/>
     </resultMap>
+
     <select id="selectClassroom" resultMap="selectClassroom">
         select
-        res_id,building.building_name,classroom.room_num,room_capacity,room_type,res_week,res_day_of_week,res_period,res_room_status,res_date
-        from classroom,classroom_resource,building
-        where classroom.building_id = building.building_id
-        and classroom.room_num = classroom_resource.room_num
-        <if test="building_id!=null and building_id !=''">
-            and building.building_id = #{building_id}
-        </if>
-        <if test="capacity!=null">
-            and classroom.room_capacity >= #{capacity}
-        </if>
-        <if test="room_type!=null and room_type !=''">
-            and classroom.room_type = #{room_type}
-        </if>
-        <if test="res_week!=null and res_week !=''">
-            and classroom_resource.res_week = #{res_week}
-        </if>
-        <if test="res_day_of_week!=null and res_day_of_week !=''">
-            and classroom_resource.res_day_of_week = #{res_day_of_week}
-        </if>
-        <if test="period!=null and period !=''">
-            and classroom_resource.res_period = #{period}
-        </if>
-        <if test="room_status!=null and room_status !=''">
-            and res_room_status = #{room_status}
-        </if>
-        <if test="date!=null and date !=''">
-            and DATE(res_date) = DATE(#{date})
-        </if>
+        building.building_name,
+        classroom.room_num,
+        classroom.room_capacity,
+        classroom.room_type,
+        classroom_resource.res_week,
+        classroom_resource.res_day_of_week,
+        CASE
+        WHEN MAX(CASE WHEN classroom_resource.res_room_status = '不可用' THEN 1 ELSE 0 END) = 1
+        THEN '不可用'
+        WHEN MAX(CASE WHEN classroom_resource.res_room_status = '已预约' THEN 1 ELSE 0 END) = 1
+        THEN '已预约'
+        ELSE '空闲'
+        END as res_room_status,
+        DATE(classroom_resource.res_date) as res_date,
+        GROUP_CONCAT(
+        DISTINCT CASE WHEN classroom_resource.res_room_status = '空闲' THEN classroom_resource.res_period END
+        ORDER BY
+        CASE
+        WHEN classroom_resource.res_period LIKE '%第一节%' THEN 1
+        WHEN classroom_resource.res_period LIKE '%第二节%' THEN 2
+        WHEN classroom_resource.res_period LIKE '%第三节%' THEN 3
+        WHEN classroom_resource.res_period LIKE '%第四节%' THEN 4
+        WHEN classroom_resource.res_period LIKE '%第五节%' THEN 5
+        WHEN classroom_resource.res_period LIKE '%第六节%' THEN 6
+        WHEN classroom_resource.res_period LIKE '%第七节%' THEN 7
+        WHEN classroom_resource.res_period LIKE '%第八节%' THEN 8
+        WHEN classroom_resource.res_period LIKE '%第九节%' THEN 9
+        WHEN classroom_resource.res_period LIKE '%第十节%' THEN 10
+        ELSE 99
+        END
+        SEPARATOR ','
+        ) AS periods
+        from classroom
+        inner join classroom_resource on classroom.room_num = classroom_resource.room_num
+        inner join building on classroom.building_id = building.building_id
+        <where>
+            <!-- 移除注释，确保条件正确拼接 -->
+            <if test="building_id != null and building_id != ''">
+                building.building_id = #{building_id}
+            </if>
+            <if test="capacity != null">
+                AND classroom.room_capacity >= #{capacity}
+            </if>
+            <if test="room_type != null and room_type != ''">
+                AND classroom.room_type = #{room_type}
+            </if>
+            <if test="res_week != null and res_week != ''">
+                AND classroom_resource.res_week = #{res_week}
+            </if>
+            <if test="res_day_of_week != null and res_day_of_week != ''">
+                AND classroom_resource.res_day_of_week = #{res_day_of_week}
+            </if>
+            <if test="period != null and period != ''">
+                AND classroom_resource.res_period = #{period}
+            </if>
+            <if test="room_status != null and room_status != ''">
+                AND classroom_resource.res_room_status = #{room_status}
+            </if>
+            <if test="date != null and date != ''">
+                and DATE(classroom_resource.res_date) = DATE(#{date})
+            </if>
+        </where>
+        <!-- 确保GROUP BY前没有多余的WHERE -->
+        GROUP BY DATE(classroom_resource.res_date), classroom.room_num, building.building_name, classroom.room_capacity,
+        classroom.room_type,
+        classroom_resource.res_week,
+        classroom_resource.res_day_of_week
     </select>
 
 
@@ -54,7 +94,9 @@
     <select id="selectRoomStatus">
         select classroom_resource.res_room_status
         from classroom_resource
-        where classroom_resource.res_id = #{res_id}
+        where res_date = #{date}
+          and res_period = #{period}
+          and room_num = #{room_num}
     </select>
 
 
@@ -78,9 +120,12 @@
 
     <update id="updateRes">
         update classroom_resource
-        set res_room_status = "已预订",
-            apply_info_id   = #{apply_id}
-        where res_id = #{res_id}
+        set apply_info_id   = #{apply_id},
+            res_room_status = "已预约"
+        where res_date = #{date}
+          and res_period = #{period}
+          and room_num = #{room_num}
+
     </update>
     <!--    预约教室end-->
 
