@@ -7,6 +7,7 @@ import demo.campus_management_system.entity.VO.ListLogsVO;
 import demo.campus_management_system.service.service_interface.TeachSecretaryService;
 import demo.campus_management_system.util.ResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,9 +33,16 @@ public class TeachSecretaryController {
             @RequestParam(required = false) String userName,
             @RequestParam(required = false) String dateStart,
             @RequestParam(required = false) String dateEnd,
+            @RequestParam(required = false) String date_start,
+            @RequestParam(required = false) String date_end,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
-        
+        if (StringUtils.isEmpty(dateStart)) {
+            dateStart = date_start;
+        }
+        if (StringUtils.isEmpty(dateEnd)) {
+            dateEnd = date_end;
+        }
         return teachSecretaryService.listLogs(token, applyStatus, buildingId,
                 userName, dateStart, dateEnd, page, size);
     }
