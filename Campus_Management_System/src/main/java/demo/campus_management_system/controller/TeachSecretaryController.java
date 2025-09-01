@@ -3,6 +3,7 @@ package demo.campus_management_system.controller;
 import demo.campus_management_system.entity.DTO.ClassroomUsageQueryDTO;
 import demo.campus_management_system.entity.DTO.UpdateStatusDTO;
 
+import demo.campus_management_system.entity.VO.ClassroomUsageStatsVO;
 import demo.campus_management_system.entity.VO.ClassroomUsageVO;
 import demo.campus_management_system.entity.VO.ListLogsVO;
 import demo.campus_management_system.service.service_interface.TeachSecretaryService;
@@ -47,6 +48,17 @@ public class TeachSecretaryController {
         return teachSecretaryService.listLogs(token, applyStatus, buildingId,
                 userName, dateStart, dateEnd, page, size);
     }
+
+
+    /**
+     * 教秘审核工作台
+     */
+    @GetMapping("/getClassroomUsageStats")
+    public ResultDTO<ClassroomUsageStatsVO> getClassroomUsageStats(
+            @RequestHeader(value = "Authorization") String token) {
+        return teachSecretaryService.getClassroomUsageStats(token);
+    }
+
 
     /**
      * 审核详情查看

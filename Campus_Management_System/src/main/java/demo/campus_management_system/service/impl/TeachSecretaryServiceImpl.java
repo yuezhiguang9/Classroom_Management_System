@@ -6,6 +6,7 @@ import demo.campus_management_system.dao.dao_interface.TeachSecretaryMapper;
 import demo.campus_management_system.entity.Teach_Secretary;
 import demo.campus_management_system.entity.DTO.ClassroomUsageQueryDTO;
 import demo.campus_management_system.entity.DTO.UpdateStatusDTO;
+import demo.campus_management_system.entity.VO.ClassroomUsageStatsVO;
 import demo.campus_management_system.entity.VO.ClassroomUsageVO;
 import demo.campus_management_system.entity.VO.ListLogsVO;
 import demo.campus_management_system.service.service_interface.TeachSecretaryService;
@@ -176,5 +177,10 @@ public class TeachSecretaryServiceImpl extends ServiceImpl<TeachSecretaryMapper,
             e.printStackTrace();
             return ResultDTO.fail(500, "服务器内部错误");
         }
+    }
+
+    @Override
+    public ResultDTO<ClassroomUsageStatsVO> getClassroomUsageStats(String token) {
+        return ResultDTO.success(teachSecretaryMapper.getClassroomUsageStats());
     }
 }

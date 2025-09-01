@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import demo.campus_management_system.entity.Teach_Secretary;
 import demo.campus_management_system.entity.DTO.ClassroomUsageQueryDTO;
 import demo.campus_management_system.entity.DTO.UpdateStatusDTO;
+import demo.campus_management_system.entity.VO.ClassroomUsageStatsVO;
 import demo.campus_management_system.entity.VO.ClassroomUsageVO;
 import demo.campus_management_system.entity.VO.ListLogsVO;
 import demo.campus_management_system.entity.DTO.ResultDTO;
@@ -43,4 +44,11 @@ public interface TeachSecretaryService extends IService<Teach_Secretary> {
      * 查看教室使用率页面
      */
     ResultDTO<List<ClassroomUsageVO>> classroomUsage(String token, ClassroomUsageQueryDTO queryDTO);
+
+    /**
+     * 获取教室使用率统计数据
+     * @param token
+     * @return
+     */
+    ResultDTO<ClassroomUsageStatsVO> getClassroomUsageStats(String token);
 }
