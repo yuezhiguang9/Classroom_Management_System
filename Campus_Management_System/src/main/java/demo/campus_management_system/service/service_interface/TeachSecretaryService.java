@@ -1,5 +1,6 @@
 package demo.campus_management_system.service.service_interface;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import demo.campus_management_system.entity.Teach_Secretary;
 import demo.campus_management_system.entity.DTO.ClassroomUsageQueryDTO;
@@ -20,7 +21,7 @@ public interface TeachSecretaryService extends IService<Teach_Secretary> {
     /**
      * 教秘审核工作台
      */
-    ResultDTO<List<ListLogsVO>> listLogs(
+    ResultDTO<Page<ListLogsVO>> listLogs(
             String token,
             String applyStatus,
             String buildingId,
@@ -44,7 +45,7 @@ public interface TeachSecretaryService extends IService<Teach_Secretary> {
     /**
      * 查看教室使用率页面
      */
-    ResultDTO<List<ClassroomUsageVO>> classroomUsage(String token, ClassroomUsageQueryDTO queryDTO);
+    ResultDTO<Page<ClassroomUsageVO>> classroomUsage(String token, ClassroomUsageQueryDTO queryDTO);
 
     /**
      * 获取教室使用率统计数据

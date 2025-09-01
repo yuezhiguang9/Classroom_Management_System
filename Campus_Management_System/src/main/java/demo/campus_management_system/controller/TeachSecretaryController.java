@@ -1,5 +1,6 @@
 package demo.campus_management_system.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import demo.campus_management_system.entity.DTO.ClassroomUsageQueryDTO;
 import demo.campus_management_system.entity.DTO.UpdateStatusDTO;
 
@@ -29,7 +30,7 @@ public class TeachSecretaryController {
      * 教秘审核工作台
      */
     @GetMapping("/listLogs")
-    public ResultDTO<List<ListLogsVO>> listLogs(
+    public ResultDTO<Page<ListLogsVO>> listLogs(
             @RequestHeader(value = "Authorization") String token,
             @RequestParam(required = false) String applyStatus,
             @RequestParam(required = false) String buildingId,
@@ -106,7 +107,7 @@ public class TeachSecretaryController {
      * 查看教室使用率页面
      */
     @GetMapping("/classroomUsage")
-    public ResultDTO<List<ClassroomUsageVO>> classroomUsage(
+    public ResultDTO<Page<ClassroomUsageVO>> classroomUsage(
             @RequestHeader(value = "Authorization") String token,
             @RequestParam(required = false) String dateStart,
             @RequestParam(required = false) String dateEnd,
