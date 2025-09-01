@@ -126,14 +126,6 @@ public class TeachSecretaryServiceImpl extends ServiceImpl<TeachSecretaryMapper,
                 return ResultDTO.fail(401, "未登录或Token失效");
             }
 
-            // 获取统计数据
-            ClassroomUsageVO statistics = teachSecretaryMapper.selectUsageStatistics(
-                queryDTO.getDate_start(),
-                queryDTO.getDate_end(),
-                queryDTO.getBuilding_id(),
-                queryDTO.getRoom_type()
-            );
-
             // 创建分页对象
             Page<ClassroomUsageVO> page = new Page<>(queryDTO.getPage(), queryDTO.getSize());
 
