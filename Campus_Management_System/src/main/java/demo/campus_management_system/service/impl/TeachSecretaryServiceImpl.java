@@ -154,6 +154,7 @@ public class TeachSecretaryServiceImpl extends ServiceImpl<TeachSecretaryMapper,
 
     @Override
     public ResultDTO<CalculateClassroomMetricsVo> calculateClassroomMetrics(String token) {
-        return ResultDTO.success(teachSecretaryMapper.calculateClassroomMetrics());
+        CalculateClassroomMetricsVo data = teachSecretaryMapper.calculateClassroomMetrics();
+        return ResultDTO.success(data);
     }
 }
