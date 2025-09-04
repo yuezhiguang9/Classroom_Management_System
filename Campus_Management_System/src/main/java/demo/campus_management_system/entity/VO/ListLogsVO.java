@@ -7,6 +7,8 @@ import java.util.List;
 
 @Data
 public class ListLogsVO {
+    //申请编号
+    private String applyid;
     //申请人姓名
     private String userName;
 
