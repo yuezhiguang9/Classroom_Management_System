@@ -151,7 +151,7 @@
     <select id="selectWeekApproved" resultType="Integer">
         SELECT COUNT(*)
         FROM apply_info
-        WHERE apply_status = '已批准'
+        WHERE apply_status = '已通过'
           AND apply_book_time BETWEEN #{startTime} AND #{endTime}
           AND user_cancel = 0
     </select>
@@ -159,7 +159,7 @@
     <select id="selectWeekRejected" resultType="Integer">
         SELECT COUNT(*)
         FROM apply_info
-        WHERE apply_status = '已拒绝'
+        WHERE apply_status = '已驳回'
           AND apply_book_time BETWEEN #{startTime} AND #{endTime}
           AND user_cancel = 0
     </select>
@@ -552,7 +552,7 @@
     <select id="calculateUsageRate" resultType="String">
         SELECT CONCAT(
                        ROUND(
-                               (SELECT COUNT(*) FROM classroom_resource WHERE res_room_status = '已预订') * 100.0 /
+                               (SELECT COUNT(*) FROM classroom_resource WHERE res_room_status = '已预约') * 100.0 /
                                (SELECT COUNT(*) FROM classroom_resource), 2
                        ), '%'
                ) as usage_rate
@@ -562,7 +562,7 @@
     <select id="calculateApprovalRate" resultType="String">
         SELECT CONCAT(
                        ROUND(
-                               (SELECT COUNT(*) FROM apply_info WHERE apply_status = '已批准' AND user_cancel = 0) *
+                               (SELECT COUNT(*) FROM apply_info WHERE apply_status = '已通过' AND user_cancel = 0) *
                                100.0 /
                                (SELECT COUNT(*) FROM apply_info WHERE user_cancel = 0), 2
                        ), '%'
@@ -578,7 +578,7 @@
         CONCAT(ROUND(COUNT(cr.res_id) * 100.0 / COUNT(DISTINCT c.room_num), 2), '%') as usage_rate
         FROM classroom c
         LEFT JOIN classroom_resource cr ON c.room_num = cr.room_num
-        AND cr.res_room_status = '已预订'
+        AND cr.res_room_status = '已预约'
         <where>
             <if test="collegeId != null and collegeId != ''">
                 AND c.college_id = #{collegeId}
@@ -600,7 +600,7 @@
         cr.res_period as period,
         COUNT(*) as usage_count
         FROM classroom_resource cr
-        WHERE cr.res_room_status = '已预订'
+        WHERE cr.res_room_status = '已预约'
         <choose>
             <when test="timeRange == 'week'">
                 AND YEARWEEK(cr.res_date, 1) = YEARWEEK(NOW(), 1)

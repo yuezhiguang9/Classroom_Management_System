@@ -14,14 +14,14 @@
         SELECT COUNT(*) AS approved_count
         FROM apply_info
         WHERE apply_book_time between #{StartTime} and #{EndTime}
-          AND apply_status = '已批准'
+          AND apply_status = '已通过'
     </select>
 
     <select id="selectWeekRejected">
         select count(*)
         from apply_info
         where apply_book_time between #{StartTime} and #{EndTime}
-          and apply_status = '已拒绝'
+          and apply_status = '已驳回'
     </select>
 
     <resultMap id="listLogsVOMap" type="demo.campus_management_system.entity.VO.ListLogsVO">
