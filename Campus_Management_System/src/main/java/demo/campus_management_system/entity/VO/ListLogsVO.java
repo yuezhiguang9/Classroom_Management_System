@@ -13,6 +13,8 @@ public class ListLogsVO {
     private String userName;
     //所属院系
     private String collegeName;
+    //驳回原因
+    private String rejectReason;
 
 
     //联系电话
