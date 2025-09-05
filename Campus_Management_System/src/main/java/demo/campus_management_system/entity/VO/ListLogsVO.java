@@ -11,6 +11,8 @@ public class ListLogsVO {
     private String applyid;
     //申请人姓名
     private String userName;
+    //所属院系
+    private String collegeName;
 
 
     //联系电话
