@@ -164,20 +164,39 @@
           AND user_cancel = 0
     </select>
     <!-- 需要分页的信息 -->
-    <select id="selectRecordsByPage" resultType="demo.campus_management_system.entity.VO.ListLogsVO">
+    <resultMap id="getRecordsByPage" type="demo.campus_management_system.entity.VO.ListLogsVO">
+        <result property="user_name" column="user_name"/>
+        <result property="phone" column="phone"/>
+        <result property="book_time" column="book_time"/>
+        <result property="building_name" column="building_name"/>
+        <result property="room_num" column="room_num"/>
+        <result property="date" column="date"/>
+        <result property="week" column="week"/>
+        <result property="day_of_week" column="day_of_week"/>
+        <result property="period" column="period"/> <!-- 这里会接收合并后的节次 -->
+        <result property="purpose" column="purpose"/>
+        <result property="person_count" column="person_count"/>
+        <result property="apply_status" column="apply_status"/>
+        <result property="apply_reject_reason" column="apply_reject_reason"/>
+    </resultMap>
+
+
+    <select id="selectRecordsByPage" resultMap="getRecordsByPage">
         SELECT
         u.user_name,
         u.user_phone as phone,
         ai.apply_book_time as book_time,
         COALESCE(b.building_name, '未分配') as building_name,
         COALESCE(c.room_num, '未分配') as room_num,
-        COALESCE(cr.res_date, '未分配') as date,
+        COALESCE(DATE_FORMAT(cr.res_date, '%Y-%m-%d'), '未分配') as date,
         COALESCE(cr.res_week, '未分配') as week,
         COALESCE(cr.res_day_of_week, '未分配') as day_of_week,
-        COALESCE(cr.res_period, '未分配') as period,
+        -- 使用GROUP_CONCAT合并节次，并用逗号分隔
+        GROUP_CONCAT(DISTINCT cr.res_period ORDER BY cr.res_period SEPARATOR ',') as period,
         ai.apply_purpose as purpose,
         ai.apply_person_count as person_count,
-        ai.apply_status
+        ai.apply_status,
+        ai.apply_reject_reason
         FROM apply_info ai
         LEFT JOIN users u ON ai.user_account = u.user_account
         LEFT JOIN classroom_resource cr ON ai.apply_id = cr.apply_info_id
@@ -203,6 +222,13 @@
         <if test="date_end != null and date_end != ''">
             AND cr.res_date &lt;= #{date_end}
         </if>
+        -- 按预约的唯一标识分组，确保同一预约只出现一次
+        GROUP BY
+        u.user_name, u.user_phone, ai.apply_book_time,
+        b.building_name, c.room_num, cr.res_date,
+        cr.res_week, cr.res_day_of_week,
+        ai.apply_purpose, ai.apply_person_count,
+        ai.apply_status, ai.apply_reject_reason
         ORDER BY ai.apply_book_time DESC
     </select>
 

@@ -242,7 +242,7 @@ public class SuperAdminImpl extends ServiceImpl<SuperAdminMapper, Super_admin> i
             //获取本日结束时间
             LocalDateTime EndTime = DataUtils.getEndOfToday();
 
-            //获取全校今日同过数
+            //获取全校今日通过数
             Integer TodayPending = superAdminMapper.selectTodayPending();
 
             //获取本周通过数

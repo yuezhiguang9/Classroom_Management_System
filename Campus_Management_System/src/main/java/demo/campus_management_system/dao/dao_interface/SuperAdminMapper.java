@@ -15,9 +15,6 @@ import org.apache.ibatis.annotations.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 @Mapper
 public interface SuperAdminMapper extends BaseMapper<Super_admin> {
