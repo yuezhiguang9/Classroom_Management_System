@@ -15,6 +15,8 @@ public class ListLogsVO {
     private String collegeName;
     //驳回原因
     private String rejectReason;
+    //驳回原因
+    private String processingTime;
 
 
     //联系电话
