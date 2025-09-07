@@ -7,8 +7,17 @@ import java.util.List;
 
 @Data
 public class ListLogsVO {
+    //申请编号
+    private String applyid;
     //申请人姓名
     private String user_name;
+    private String userName;
+    //所属院系
+    private String collegeName;
+    //驳回原因
+    private String rejectReason;
+    //驳回原因
+    private String processingTime;
 
 
     //联系电话
