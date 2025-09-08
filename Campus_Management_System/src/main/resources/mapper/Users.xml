@@ -155,7 +155,8 @@
         <result property="date" column="res_date"/>
         <result property="week" column="res_week"/>
         <result property="res_day_of_week" column="res_day_of_week"/>
-        <result property="period" column="res_period"/>
+        <!-- 映射聚合后的“period”字段 -->
+        <result property="period" column="period"/>
         <result property="purpose" column="apply_purpose"/>
         <result property="reject_reason" column="apply_reject_reason"/>
         <result property="book_time" column="apply_book_time"/>
@@ -163,26 +164,38 @@
         <result property="can_cancel" column="user_cancel"/>
     </resultMap>
     <select id="selectMyReservationsVO" resultMap="MyReservationsVO">
-        select apply_info.apply_id,
+        SELECT apply_info.apply_id,
                building_name,
                classroom.room_num,
                classroom_resource.res_date,
                res_week,
                res_day_of_week,
-               res_period,
+               GROUP_CONCAT(res_period SEPARATOR '、') AS period,
                apply_purpose,
                apply_reject_reason,
                apply_book_time,
                apply_status,
                user_cancel
-        from apply_info,
+        FROM apply_info,
              classroom,
              classroom_resource,
              building
-        where apply_info.apply_id = classroom_resource.apply_info_id
-          and classroom_resource.room_num = classroom.room_num
-          and classroom.building_id = building.building_id
-          and user_account = #{user_id}
+        WHERE apply_info.apply_id = classroom_resource.apply_info_id
+          AND classroom_resource.room_num = classroom.room_num
+          AND classroom.building_id = building.building_id
+          AND user_account = #{user_id}
+        -- 补全所有非聚合、非分组的字段到 GROUP BY
+        GROUP BY apply_info.apply_id,
+                 building_name,
+                 classroom.room_num,
+                 classroom_resource.res_date,
+                 res_week,
+                 res_day_of_week,
+                 apply_purpose,
+                 apply_reject_reason,
+                 apply_book_time,
+                 apply_status,
+                 user_cancel
     </select>
     <!--    END查看个人记录-->
 

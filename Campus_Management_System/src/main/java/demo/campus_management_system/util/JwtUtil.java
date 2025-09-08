@@ -14,7 +14,7 @@ public class JwtUtil {
 
     //jwt有效期
     private static final long EXPIRATION_TIME = 60 * 60 * 24;
-    
+
     //提取纯Token（去掉Bearer前缀）
     public static String extractToken(String authHeader) {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -53,11 +53,15 @@ public class JwtUtil {
     //获取账号
     public static String getUserAccountToken(String token) {
         try {
+            // 处理可能存在的Bearer前缀
+            if (token != null && token.startsWith("Bearer ")) {
+                // 去掉"Bearer "前缀，保留后面的token部分
+                token = token.substring("Bearer ".length());
+            }
             return parseToken(token).getBody().getSubject();
         } catch (RuntimeException e) {
             return "error";
         }
-
     }
 
     //获取密码
@@ -78,7 +82,6 @@ public class JwtUtil {
             throw new RuntimeException("Failed to parse user type from token", e);
         }
     }
-
 
 
 }

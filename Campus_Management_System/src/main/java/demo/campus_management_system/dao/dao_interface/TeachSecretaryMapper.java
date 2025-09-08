@@ -15,7 +15,7 @@ import org.apache.ibatis.annotations.Param;
  */
 @Mapper
 public interface TeachSecretaryMapper extends BaseMapper<Teach_Secretary> {
-    
+
     /**
      * 教秘查看审核工作台(分页)
      */
@@ -28,21 +28,21 @@ public interface TeachSecretaryMapper extends BaseMapper<Teach_Secretary> {
             @Param("dateStart") String dateStart,
             @Param("dateEnd") String dateEnd
     );
-    
+
     /**
      * 教秘统计数据
      */
     Integer countTodayPendingBySec(@Param("secAccount") String secAccount);
-    
+
     Integer countWeekApprovedBySec(@Param("secAccount") String secAccount);
-    
+
     Integer countWeekRejectedBySec(@Param("secAccount") String secAccount);
-    
+
     /**
      * 根据申请ID查询详情(过滤用户取消的预约)
      */
     ListLogsVO selectSecLogDetail(@Param("applyId") String applyId);
-    
+
     /**
      * 更新申请审核状态
      */
@@ -52,7 +52,7 @@ public interface TeachSecretaryMapper extends BaseMapper<Teach_Secretary> {
             @Param("rejectReason") String rejectReason,
             @Param("resStatus") String resStatus
     );
-    
+
     /**
      * 查询教室使用率统计数据
      */
@@ -62,7 +62,7 @@ public interface TeachSecretaryMapper extends BaseMapper<Teach_Secretary> {
             @Param("buildingId") String buildingId,
             @Param("roomType") String roomType
     );
-    
+
     /**
      * 查询教室使用率详细列表(分页)
      */
@@ -75,7 +75,8 @@ public interface TeachSecretaryMapper extends BaseMapper<Teach_Secretary> {
             @Param("roomType") String roomType
     );
 
-    ClassroomUsageStatsVO getClassroomUsageStats();
+    ClassroomUsageStatsVO getClassroomUsageStats(
+            @Param("secaccount") String secaccount);
 
     CalculateClassroomMetricsVo calculateClassroomMetrics();
 }

@@ -159,7 +159,14 @@ public class TeachSecretaryServiceImpl extends ServiceImpl<TeachSecretaryMapper,
 
     @Override
     public ResultDTO<ClassroomUsageStatsVO> getClassroomUsageStats(String token) {
-        return ResultDTO.success(teachSecretaryMapper.getClassroomUsageStats());
+        try {
+            ClassroomUsageStatsVO classroomUsageStatsVO = teachSecretaryMapper.getClassroomUsageStats(JwtUtil.getUserAccountToken(token));
+
+            return ResultDTO.success(classroomUsageStatsVO);
+        } catch (Exception e) {
+            return ResultDTO.fail(400, e.toString());
+        }
+
     }
 
     @Override

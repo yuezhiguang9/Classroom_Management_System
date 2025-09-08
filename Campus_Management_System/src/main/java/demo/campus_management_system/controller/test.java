@@ -27,7 +27,7 @@ public class test {
 
     @GetMapping("getId")
     public String getID(String token) {
-        System.out.println(JwtUtil.getUserAccountToken(token));
+        System.out.println("getId中的Id：" + JwtUtil.getUserAccountToken(token));
         return JwtUtil.getUserAccountToken(token);
     }
 
