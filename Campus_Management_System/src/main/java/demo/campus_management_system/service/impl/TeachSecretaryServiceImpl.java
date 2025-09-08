@@ -99,20 +99,31 @@ public class TeachSecretaryServiceImpl extends ServiceImpl<TeachSecretaryMapper,
             if ("error".equals(secAccount)) {
                 return ResultDTO.fail(401, "未登录或Token失效");
             }
-
+            int result;
             // 参数校验
-            if ("已拒绝".equals(updateDTO.getApply_status())) {
+            if ("已驳回".equals(updateDTO.getApply_status())) {
                 if (updateDTO.getReject_reason() == null || updateDTO.getReject_reason().trim().isEmpty()) {
                     return ResultDTO.fail(400, "驳回时必须填写驳回原因");
                 }
+                result = teachSecretaryMapper.updateApplyStatus(
+                        updateDTO.getApply_id(),
+                        updateDTO.getApply_status(),
+                        updateDTO.getReject_reason(),
+                        "空闲"
+                );
+            }
+else{// 更新申请状态
+                result = teachSecretaryMapper.updateApplyStatus(
+                        updateDTO.getApply_id(),
+                        updateDTO.getApply_status(),
+                        updateDTO.getReject_reason(),
+                        ""
+                );
+
             }
 
-            // 更新申请状态
-            int result = teachSecretaryMapper.updateApplyStatus(
-                    updateDTO.getApply_id(),
-                    updateDTO.getApply_status(),
-                    updateDTO.getReject_reason()
-            );
+
+
 
             if (result > 0) {
                 return ResultDTO.success(true, "审核状态更新成功");

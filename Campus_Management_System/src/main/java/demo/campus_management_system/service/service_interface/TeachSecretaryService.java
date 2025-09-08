@@ -43,4 +43,6 @@ public interface TeachSecretaryService extends IService<Teach_Secretary> {
      * 查看教室使用率页面
      */
     ResultDTO<List<ClassroomUsageVO>> classroomUsage(String token, ClassroomUsageQueryDTO queryDTO);
+
+
 }

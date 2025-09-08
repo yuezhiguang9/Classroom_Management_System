@@ -47,7 +47,8 @@ public interface TeachSecretaryMapper extends BaseMapper<Teach_Secretary> {
     int updateApplyStatus(
             @Param("applyId") String applyId,
             @Param("applyStatus") String applyStatus,
-            @Param("rejectReason") String rejectReason
+            @Param("rejectReason") String rejectReason,
+            @Param("resStatus") String resStatus
     );
     
     /**
