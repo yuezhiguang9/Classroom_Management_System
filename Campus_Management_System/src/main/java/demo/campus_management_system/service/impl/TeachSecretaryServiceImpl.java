@@ -6,6 +6,8 @@ import demo.campus_management_system.dao.dao_interface.TeachSecretaryMapper;
 import demo.campus_management_system.entity.Teach_Secretary;
 import demo.campus_management_system.entity.DTO.ClassroomUsageQueryDTO;
 import demo.campus_management_system.entity.DTO.UpdateStatusDTO;
+import demo.campus_management_system.entity.VO.CalculateClassroomMetricsVo;
+import demo.campus_management_system.entity.VO.ClassroomUsageStatsVO;
 import demo.campus_management_system.entity.VO.ClassroomUsageVO;
 import demo.campus_management_system.entity.VO.ListLogsVO;
 import demo.campus_management_system.service.service_interface.TeachSecretaryService;
@@ -26,7 +28,7 @@ public class TeachSecretaryServiceImpl extends ServiceImpl<TeachSecretaryMapper,
     private TeachSecretaryMapper teachSecretaryMapper;
 
     @Override
-    public ResultDTO<List<ListLogsVO>> listLogs(String token, String applyStatus, String buildingId,
+    public ResultDTO<Page<ListLogsVO>> listLogs(String token, String applyStatus, String buildingId,
                                                 String userName, String dateStart, String dateEnd,
                                                 Integer page, Integer size) {
         try {
@@ -45,19 +47,7 @@ public class TeachSecretaryServiceImpl extends ServiceImpl<TeachSecretaryMapper,
                     pageObj, secAccount, applyStatus, buildingId, userName, dateStart, dateEnd
             );
 
-            // 获取统计数据
-            Integer todayPending = teachSecretaryMapper.countTodayPendingBySec(secAccount);
-            Integer weekApproved = teachSecretaryMapper.countWeekApprovedBySec(secAccount);
-            Integer weekRejected = teachSecretaryMapper.countWeekRejectedBySec(secAccount);
-
-            List<ListLogsVO> records = result.getRecords();
-
-            // 在第一条记录中设置统计信息（简化处理）
-            if (!records.isEmpty()) {
-                // 可以扩展VO或使用其他方式返回统计数据
-            }
-
-            return ResultDTO.success(records, "查询成功");
+            return ResultDTO.success(result, "查询成功");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -138,7 +128,7 @@ else{// 更新申请状态
     }
 
     @Override
-    public ResultDTO<List<ClassroomUsageVO>> classroomUsage(String token, ClassroomUsageQueryDTO queryDTO) {
+    public ResultDTO<Page<ClassroomUsageVO>> classroomUsage(String token, ClassroomUsageQueryDTO queryDTO) {
         try {
             // 验证token
             String actualToken = JwtUtil.extractToken(token);
@@ -146,14 +136,6 @@ else{// 更新申请状态
             if ("error".equals(secAccount)) {
                 return ResultDTO.fail(401, "未登录或Token失效");
             }
-
-            // 获取统计数据
-            ClassroomUsageVO statistics = teachSecretaryMapper.selectUsageStatistics(
-                queryDTO.getDate_start(),
-                queryDTO.getDate_end(),
-                queryDTO.getBuilding_id(),
-                queryDTO.getRoom_type()
-            );
 
             // 创建分页对象
             Page<ClassroomUsageVO> page = new Page<>(queryDTO.getPage(), queryDTO.getSize());
@@ -168,24 +150,22 @@ else{// 更新申请状态
                     queryDTO.getRoom_type()
             );
 
-            List<ClassroomUsageVO> records = result.getRecords();
-
-            // 将统计数据添加到第一条记录中（简化处理）
-            if (statistics != null && !records.isEmpty()) {
-                ClassroomUsageVO firstRecord = records.get(0);
-                firstRecord.setAvgUsageRate(statistics.getAvgUsageRate());
-                firstRecord.setMostUsed(statistics.getMostUsed());
-                firstRecord.setMostUsageCount(statistics.getMostUsageCount());
-                firstRecord.setLeastUsed(statistics.getLeastUsed());
-                firstRecord.setLeastUsageCount(statistics.getLeastUsageCount());
-                firstRecord.setTotalUsage(statistics.getTotalUsage());
-            }
-
-            return ResultDTO.success(records, "查询成功");
+            return ResultDTO.success(result, "查询成功");
 
         } catch (Exception e) {
             e.printStackTrace();
             return ResultDTO.fail(500, "服务器内部错误");
         }
+    }
+
+    @Override
+    public ResultDTO<ClassroomUsageStatsVO> getClassroomUsageStats(String token) {
+        return ResultDTO.success(teachSecretaryMapper.getClassroomUsageStats());
+    }
+
+    @Override
+    public ResultDTO<CalculateClassroomMetricsVo> calculateClassroomMetrics(String token) {
+        CalculateClassroomMetricsVo data = teachSecretaryMapper.calculateClassroomMetrics();
+        return ResultDTO.success(data);
     }
 }
