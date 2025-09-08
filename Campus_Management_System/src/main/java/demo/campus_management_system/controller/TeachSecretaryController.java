@@ -115,9 +115,9 @@ public class TeachSecretaryController {
             @RequestParam(required = false) String roomType,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
-        
+
         // 参数校
-        
+
         // 构建查询DTO
         ClassroomUsageQueryDTO queryDTO = new ClassroomUsageQueryDTO();
         queryDTO.setDate_start(dateStart);
