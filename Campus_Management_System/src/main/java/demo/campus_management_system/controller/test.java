@@ -27,6 +27,7 @@ public class test {
 
     @GetMapping("getId")
     public String getID(String token) {
+        System.out.println(JwtUtil.getUserAccountToken(token));
         return JwtUtil.getUserAccountToken(token);
     }
 
@@ -49,7 +50,6 @@ public class test {
 //
 //            //打印测试
 //            System.out.println(JwtUtil.getUserAccountToken(token) + "----" + JwtUtil.getUserPasswordToken(token));
-//
 //            System.out.println("usersDTO=" + "\n" + updateUsersDTO.getTotal());
 //
 //            String account = JwtUtil.getUserAccountToken(token);
