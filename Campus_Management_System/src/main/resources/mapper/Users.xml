@@ -145,6 +145,7 @@
         from apply_info
         where user_account = #{user_id}
           and apply_status = "待审核"
+          and user_cancel = 0
     </select>
 
     <!--    需要分页的地方-->
